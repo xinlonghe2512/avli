@@ -4,9 +4,9 @@
     {
       "label": "Agents: Dev Server",
       "type": "shell",
-      "command": "uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+      "command": "make agents",
       "options": {
-        "cwd": "${workspaceFolder}/apps/agents"
+        "cwd": "${workspaceFolder}"
       },
       "isBackground": true,
       "problemMatcher": []
@@ -14,25 +14,22 @@
     {
       "label": "Ingestor: Dev Server",
       "type": "shell",
-      "command": "uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 9000",
+      "command": "make ingestor",
       "options": {
-        "cwd": "${workspaceFolder}/apps/ingestor"
+        "cwd": "${workspaceFolder}"
       },
       "isBackground": true,
       "problemMatcher": []
     },
     {
       "label": "Dev: Start All",
-      "dependsOn": [
-        "Agents: Dev Server",
-        "Ingestor: Dev Server"
-      ],
+      "dependsOn": ["Agents: Dev Server", "Ingestor: Dev Server"],
       "dependsOrder": "parallel"
     },
     {
       "label": "Test: All",
       "type": "shell",
-      "command": "uv run pytest",
+      "command": "make test",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -45,9 +42,9 @@
     {
       "label": "Test: Agents",
       "type": "shell",
-      "command": "uv run pytest",
+      "command": "make test-agents",
       "options": {
-        "cwd": "${workspaceFolder}/apps/agents"
+        "cwd": "${workspaceFolder}"
       },
       "group": "test",
       "problemMatcher": []
@@ -55,9 +52,19 @@
     {
       "label": "Test: Ingestor",
       "type": "shell",
-      "command": "uv run pytest",
+      "command": "make test-ingestor",
       "options": {
-        "cwd": "${workspaceFolder}/apps/ingestor"
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Eval: Agents",
+      "type": "shell",
+      "command": "make eval-agents",
+      "options": {
+        "cwd": "${workspaceFolder}"
       },
       "group": "test",
       "problemMatcher": []
@@ -65,7 +72,7 @@
     {
       "label": "Lint",
       "type": "shell",
-      "command": "uv run ruff check .",
+      "command": "make lint",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -75,7 +82,7 @@
     {
       "label": "Format",
       "type": "shell",
-      "command": "uv run ruff format .",
+      "command": "make format",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -85,7 +92,7 @@
     {
       "label": "Type Check",
       "type": "shell",
-      "command": "uv run mypy .",
+      "command": "make typecheck",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -94,12 +101,23 @@
     },
     {
       "label": "Check: All",
-      "dependsOn": [
-        "Lint",
-        "Type Check",
-        "Test: All"
-      ],
-      "dependsOrder": "parallel"
+      "type": "shell",
+      "command": "make check",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Hooks",
+      "type": "shell",
+      "command": "make hooks",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
     }
   ]
 }
