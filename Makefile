@@ -1,87 +1,147 @@
 # ---------------------- Project Config ---------------------- #
-PROJECT_NAME := fastapi_genai_boilerplate
+PROJECT_NAME := Avli
 ENV_FILE := .env
-PORT := $(shell grep ^PORT= $(ENV_FILE) | cut -d '=' -f2)
-PYTHON := uv run python
-UVICORN := uv run python main.py
-PRECOMMIT := uv run pre-commit
+UV := uv
+PYTHON := $(UV) run python
+PREK := $(UV) run prek
 
 .DEFAULT_GOAL := help
 
 # ---------------------- Local Development ---------------------- #
-.PHONY: run
-run: ## Run FastAPI app in local dev mode (auto reload)
-	uv run python main.py --env-file $(ENV_FILE)
-
 .PHONY: shell
-shell: ## Open Python shell inside uv virtual env
+shell: ## Open Python shell inside the uv environment
 	$(PYTHON)
+
+.PHONY: dev
+dev: ## Show commands for running all services
+	@echo "Run the services in separate terminals:"
+	@echo " make agents"
+	@echo " make ingestor"
+
+.PHONY: agents
+agents: ## Run the Agents FastAPI service in development mode
+	cd apps/agents && $(UV) run python main.py --env-file ../../$(ENV_FILE)
+
+.PHONY: ingestor
+ingestor: ## Run the Ingestor FastAPI service in development mode
+	cd apps/ingestor && $(UV) run python main.py --env-file ../../$(ENV_FILE)
+
+# ---------------------- Dependencies ---------------------- #
+
+.PHONY: install
+install: ## Install and sync all workspace dependencies
+	$(UV) sync --all-packages
+
+.PHONY: lock
+lock: ## Update the uv lockfile
+	$(UV) lock
+
+.PHONY: sync
+sync: ## Sync the uv workspace from the lockfile
+	$(UV) sync --all-packages --frozen
 
 # ---------------------- Linting & Formatting ---------------------- #
 .PHONY: format
-format: ## Auto-fix imports, lint, and format code (isort + ruff + black)
-	@echo "✨ Auto-formatting imports (isort)..."
-	uv run isort . --profile black --line-length 88
-	@echo "🧹 Auto-fixing lint issues (ruff)..."
-	uv run ruff check . --fix
-	@echo "🎨 Formatting code (black)..."
-	uv run black . --line-length 88
+format: ## Format code with Ruff
+	$(UV) run ruff format .
 
 .PHONY: lint
-lint: ## Run static checks (ruff + mypy)
-	@echo "🔍 Running Ruff lint checks..."
-	uv run ruff check .
-	@echo "🧠 Running Mypy type checks..."
-	uv run mypy --config-file mypy.ini .
+lint: ## Lint and auto-fix code with Ruff
+	$(UV) run ruff check . --fix
 
-.PHONY: check
-check: ## Run all pre-commit hooks on all files
-	$(PRECOMMIT) run --all-files
+.PHONY: format-check
+format-check: ## Check formatting without modifying files
+	$(UV) run ruff format --check .
 
-.PHONY: install-hooks
-install-hooks: ## Install pre-commit hooks
-	$(PRECOMMIT) install
-
-.PHONY: reinstall-hooks
-reinstall-hooks: ## Reinstall and update pre-commit hooks
-	uv run pre-commit uninstall
-	uv run pre-commit install --install-hooks
-	uv run pre-commit autoupdate
+.PHONY: typecheck
+typecheck: ## Type-check the workspace with ty
+	$(UV) run ty check
 
 # ---------------------- Testing ---------------------- #
+
 .PHONY: test
-test: ## Run pytest suite if available
-	@echo "🧪 Checking for tests..."
-	@if ls tests/test_*.py >/dev/null 2>&1; then \
-		echo "✅ Running pytest..."; \
-		uv run pytest --disable-warnings -q; \
-	else \
-		echo "⚠️  No test files found. Skipping pytest."; \
-	fi
+test: test-agents test-ingestor ## Run all service test suites
+
+.PHONY: test-agents
+test-agents: ## Run Agents tests
+	cd apps/agents && $(UV) run pytest tests
+
+.PHONY: test-ingestor
+test-ingestor: ## Run Ingestor tests
+	cd apps/ingestor && $(UV) run pytest tests
+
+# ---------------------- DeepEval ---------------------- #
+
+.PHONY: eval-agents
+eval-agents: ## Run Agents DeepEval evaluations
+	cd apps/agents && $(UV) run run deepeval test run tests/evals
+
+# ---------------------- Full Check ------------------- #
+
+.PHONY: full-check
+full-check: ## Run all CI-equivalent checks
+	$(UV) run ruff format --check .
+	$(UV) run ruff check .
+	$(UV) run ty check
+	$(UV) run pytest -v
+
+# ---------------------- Git Hooks -------------------- #
+
+.PHONY: hooks
+hooks: ## Run all prek hooks against all files
+	$(PREK) run --all-files
+
+.PHONY: install-hooks
+install-hooks: ## Install prek git hooks
+	$(PREK) install
+
+.PHONY: reinstall-hooks
+reinstall-hooks: ## Reinstall prek git hooks
+	$(PREK) uninstall
+	$(PREK) install --install-hooks
 
 # ---------------------- Cleanup ---------------------- #
 .PHONY: clean
-clean: ## Remove caches and temporary files
-	@echo "🧽 Cleaning up build and cache files..."
-	find . -type d -name "__pycache__" -exec rm -r {} + 2>/dev/null || true
-	rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage dist build
+clean: ## Remove caches and build artifacts
+	@echo "Cleaning up build and cache files..."
+	find . -type d -name "pycache" -prune -exec rm -rf {} +
+	rm -rf
+	.pytest_cache
+	.ruff_cache
+	.ty_cache
+	.coverage
+	dist
+	build
 
 # ---------------------- Docker ---------------------- #
-.PHONY: docker-build
-docker-build: ## Build the Docker image
-	@echo "🐳 Building Docker image for $(PROJECT_NAME)..."
-	docker build -t $(PROJECT_NAME):latest .
 
-.PHONY: docker-run
-docker-run: ## Run the Docker container
-	@echo "🐳 Running Docker container on port $(PORT)..."
-	docker run --rm -p $(PORT):$(PORT) $(PROJECT_NAME):latest
+.PHONY: docker-build-agents
+docker-build: ## Build the Agents Docker image
+	docker build -t $(PROJECT_NAME)-agents apps/agents
+
+.PHONY: docker-build-ingestor
+docker-build-ingestor: ## Build the Ingestor Docker image
+	docker build -t $(PROJECT_NAME)-ingestor apps/ingestor
+
+.PHONY: docker-up
+docker-up: ## Start the development Docker Compose stack
+	docker compose -f compose.dev.yml up -d
+
+.PHONY: docker-down
+docker-down: ## Stop the development Docker Compose stack
+	docker compose -f compose.dev.yml down
+
+.PHONY: docker-logs
+docker-logs: ## Follow development Docker Compose logs
+	docker compose -f compose.dev.yml logs -f
 
 # ---------------------- Help ---------------------- #
 .PHONY: help
-help: ## Show all available Make targets
+help: ## Show available Make targets
 	@echo ""
-	@echo "📘 Available Commands:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-	sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo "Available Commands:"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.## .$$' $(MAKEFILE_LIST) |
+	sort |
+	awk 'BEGIN {FS = ":.*## "}; {printf " \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""

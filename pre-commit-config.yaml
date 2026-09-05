@@ -1,12 +1,4 @@
 repos:
-  # --- Black for formatting (auto-fix) ---
-  - repo: https://github.com/psf/black
-    rev: "25.1.0"
-    hooks:
-      - id: black
-        name: Format code using Black
-        args: ["--line-length", "88"]
-
   # --- Ruff for linting & fixing ---
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.13.0"
@@ -17,14 +9,6 @@ repos:
       - id: ruff-format
         name: Format code using Ruff
         args: ["--line-length=88"]
-
-  # --- isort for import sorting (Black-compatible, auto-fix) ---
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.10.1
-    hooks:
-      - id: isort
-        name: Sort imports using isort (Black-compatible)
-        args: ["--profile", "black", "--line-length", "88"]
 
   # --- Standard pre-commit hooks ---
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -57,26 +41,7 @@ repos:
         name: Validate symlinks
       - id: check-toml
         name: Validate TOML files
-
-  # --- Mypy for type checking ---
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.17.1"
-    hooks:
-      - id: mypy
-        name: Run Mypy type checks
-        args:
-          [
-            "--explicit-package-bases",
-            "--ignore-missing-imports",
-            "--disallow-untyped-defs",
-            "--pretty",
-          ]
-        additional_dependencies:
-          - types-requests
-          - types-PyYAML
-          - types-python-dateutil
-          - types-setuptools
-
+        
   # --- Local pytest runner (optional auto-run if tests exist) ---
   - repo: local
     hooks:

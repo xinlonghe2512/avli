@@ -1,4 +1,5 @@
 version: 2
+
 updates:
   # GitHub Actions
   - package-ecosystem: github-actions
@@ -17,6 +18,7 @@ updates:
       github-actions:
         patterns:
           - "*"
+          
   # Python uv
   - package-ecosystem: uv
     directory: /
@@ -31,6 +33,7 @@ updates:
       python-packages:
         patterns:
           - "*"
+
   # Docker
   - package-ecosystem: docker
     directories:
@@ -45,6 +48,7 @@ updates:
       docker:
         patterns:
           - "*"
+
   # Docker Compose
   - package-ecosystem: docker-compose
     directory: /

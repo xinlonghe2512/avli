@@ -1,8 +1,20 @@
-# Python
+.venv
 __pycache__
-app.egg-info
+*.py[cod]
 *.pyc
-.mypy_cache
+
+.cache
+.pytest_cache
+.ruff_cache
+.ty_cache
 .coverage
 htmlcov
-.venv
+
+app.egg-info
+
+.env
+.env.*
+!.env.example
+
+tests
+.deepeval

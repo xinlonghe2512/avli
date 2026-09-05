@@ -1,82 +1,113 @@
 {
-	"name": "Avli Development Container",
-	"image": "mcr.microsoft.com/devcontainers/python:3-bookworm",
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:4": {
-			"moby": false,
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/git:1": {
-			"ppa": true,
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-      "version": "3.13",
-      "installTools": true
+  "name": "Avli Development Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace/avli",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/avli,type=bind",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {
+      "moby": false,
+      "version": "latest"
     },
-		"ghcr.io/devcontainers/features/common-utils:2": {
-			"installZsh": true,
-			"configureZshAsDefaultShell": true,
-			"installOhMyZsh": true,
-			"installOhMyZshConfig": true,
-			"upgradePackages": true
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"adpyke.codesnap",
-				"bruno-api-client.bruno",
-				"charliermarsh.ruff",
-				"fastapilabs.fastapi-vscode",
-				"formulahendry.code-runner",
-				"google.colab",
-				"github.vscode-github-actions",
-				"github.copilot",
-				"github.copilot-chat",
-				"ms-azuretools.vscode-containers",
-				"ms-python.python",
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "installOhMyZshConfig": true,
+      "upgradePackages": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "adpyke.codesnap",
+        "astral-sh.ty",
+        "bruno-api-client.bruno",
+        "charliermarsh.ruff",
+        "docker.docker",
+        "eamodio.gitlens",
+        "fastapilabs.fastapi-vscode",
+        "formulahendry.code-runner",
+        "github.vscode-github-actions",
+        "ms-python.python",
         "ms-python.vscode-pylance",
-				"ms-python.isort",
-				"ms-toolsai.jupyter",
-				"ms-toolsai.jupyter-hub",
-				"ms-toolsai.jupyter-keymap",
-				"ms-toolsai.jupyter-renderers",
-				"ms-toolsai.vscode-jupyter-cell-tags",
-				"ms-toolsai.vscode-jupyter-slideshow",
-				"redis.redis-for-vscode"
-			],
-			"settings": {
+        "redhat.vscode-yaml",
+        "redis.redis-for-vscode",
+        "tombi-toml.tombi",
+        "usernamehw.errorlens"
+      ],
+      "settings": {
+        // --- Python & Environment Settings ---
+        "python.defaultInterpreterPath": "/workspace/avli/.venv/bin/python",
+        "python.terminal.useEnvFile": true,
+        "python.terminal.activateEnvironment": true,
+
+        // --- Editor Settings ---
+        "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "charliermarsh.ruff",
-          "editor.formatOnSave": true,
           "editor.codeActionsOnSave": {
             "source.fixAll": "explicit",
             "source.organizeImports": "explicit"
           }
+        },
+
+        // --- Ruff Settings ---
+        "ruff.path": ["/workspace/avli/.venv/bin/ruff"],
+        "ruff.nativeServer": true,
+
+        // --- Testing (Pytest integration) ---
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["apps"],
+
+        // --- File Nesting & UI Cleanliness ---
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/.ty_cache": true,
+          "**/.ruff_cache": true
+        },
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.patterns": {
+          "pyproject.toml": "uv.lock, .python-version, requirements*.txt",
+          ".env": ".env.*, .env.example"
         }
       }
-		}
-	},
-	"forwardPorts": [8000, 9000, 6333, 6379],
-	"portsAttributes": {
-		"8000": {
-			"label": "Agents",
-			"onAutoForward": "notify"
-		},
+    }
+  },
+  "postCreateCommand": "uv sync --all-packages",
+
+  "forwardPorts": [8000, 9000, 6333, 6379],
+
+  "portsAttributes": {
+    "8000": {
+      "label": "Agents",
+      "onAutoForward": "notify"
+    },
     "9000": {
-			"label": "Ingestor",
-			"onAutoForward": "notify"
-		},
-		"6333": {
-			"label": "Qdrant",
-			"onAutoForward": "silent"
-		},
-		"6379": {
-			"label": "Redis",
-			"onAutoForward": "silent"
-		}
-	},
-	"remoteUser": "user",
-	"workspaceFolder": "/workspaces/avli"
+      "label": "Ingestor",
+      "onAutoForward": "notify"
+    },
+    "6333": {
+      "label": "Qdrant",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  }
 }

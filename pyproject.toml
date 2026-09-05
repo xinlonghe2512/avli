@@ -1,12 +1,13 @@
 [project]
 name = "avli-workspace"
-version = "1.0.0"
+version = "0.1.0"
 description = "Monorepo for agents and ingestor services"
 requires-python = ">=3.13"
 
 [dependency-groups]
 dev = [
     "prek>=0.4.11,<1.0.0",
+    "ty>=0.0.74",
     "zizmor>=1.28.0",
 ]
 
@@ -17,12 +18,26 @@ github-actions = [
 [tool.uv.workspace]
 members = ["apps/*"]
 
+[tool.ty]
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.rules]
+dynamic-function-decorator-return = "error"
+missing-type-argument = "error"
+possibly-unresolved-reference = "warn"
+unsound-return-statement = "error"
+
+[tool.ty.analysis]
+strict-equality-semantics = true
+
 [tool.typos.files]
 extend-exclude = [
     "img/",
     "uv.lock",
-    "agents/coverage/",
-    "agents/htmlcov/",
+    "**/coverage/",
+    "**/htmlcov/",
 ]
 
 [tool.typos.default]

@@ -1,13 +1,21 @@
 {
 	"recommendations": [
-		"FastAPILabs.fastapi-vscode",
+		"adpyke.codesnap",
 		"astral-sh.ty",
+		"bruno-api-client.bruno",
 		"charliermarsh.ruff",
 		"docker.docker",
+		"eamodio.gitlens",
+		"fastapilabs.fastapi-vscode",
+		"formulahendry.code-runner",
 		"github.vscode-github-actions",
-		"mjmlio.vscode-mjml",
-		"ms-playwright.playwright",
+		"ms-python.debugpy",
+		"ms-vscode.makefile-tools",
 		"ms-python.python",
-		"tombi-toml.tombi"
+		"ms-python.vscode-pylance",
+		"redhat.vscode-yaml",
+		"redis.redis-for-vscode",
+		"tombi-toml.tombi",
+		"usernamehw.errorlens"
 	]
 }

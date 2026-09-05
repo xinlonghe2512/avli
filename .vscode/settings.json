@@ -1,32 +1,37 @@
 {
   // --- Python & Environment Settings ---
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
   "python.terminal.useEnvFile": true,
   "python.terminal.activateEnvironment": true,
 
-  // --- Formatting & Linting (Ruff) ---
+  // --- Editor Settings ---
+  "editor.formatOnSave": true,
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll": "explicit",
       "source.organizeImports": "explicit"
     }
   },
+
+  // --- Ruff Settings ---
+  "ruff.path": ["${workspaceFolder}/.venv/bin/ruff"],
   "ruff.nativeServer": true,
 
   // --- Testing (Pytest integration) ---
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestArgs": ["tests"],
+  "python.testing.pytestArgs": ["apps"],
 
   // --- File Nesting & UI Cleanliness ---
   "files.exclude": {
     "**/__pycache__": true,
     "**/.pytest_cache": true,
-    "**/.mypy_cache": true,
+    "**/.ty_cache": true,
     "**/.ruff_cache": true
   },
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "pyproject.toml": "uv.lock, .python-version, requirements*.txt",
