@@ -7,7 +7,7 @@ WORKDIR /app
 # Install system dependencies and uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl gcc libc-dev python3-dev \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set .venv in PATH for all commands
 ENV PATH="/app/.venv/bin:$PATH"

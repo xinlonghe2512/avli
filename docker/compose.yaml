@@ -1,0 +1,148 @@
+services:
+  agents:
+    container_name: agents-app
+    build:
+      context: .
+      dockerfile: ../apps/agents/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - .:/workspace:cached
+    ports:
+      - ${AGENTS_REST_PORT?Variable not set}:8000
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT?Variable not set}
+      - AGENTS_CORS_ORIGINS=${AGENTS_CORS_ORIGINS?Variable not set}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8000/api/v1/utils/health-check/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avli-network
+    env_file:
+      - .env
+
+  ingestor:
+    container_name: ingestor-app
+    build:
+      context: .
+      dockerfile: ../apps/ingestor/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - .:/workspace:cached
+    ports:
+      - ${INGESTOR_REST_PORT?Variable not set}:9000
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT?Variable not set}
+      - INGESTOR_CORS_ORIGINS=${INGESTOR_CORS_ORIGINS?Variable not set}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/api/v1/utils/health-check/",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avli-network
+    env_file:
+      - .env
+
+  celery:
+    container_name: celery-worker
+    build:
+      context: .
+      dockerfile: ../celery.Dockerfile
+    restart: unless-stopped
+    volumes:
+      - .:/workspace:cached
+    networks:
+      - avli-network
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    image: docker.io/redis:8.10.1-alpine3.23
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - ${REDIS_REST_PORT?Variable not set}:6379
+    environment:
+      - REDIS_ARGS=--requirepass ${REDIS_PASSWORD?Variable not set} --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+      start_period: 5s
+    networks:
+      - avli-network
+    env_file:
+      - .env
+
+  redis-insight:
+    container_name: redis-insight
+    image: docker.io/redis/redisinsight:3.8.0
+    restart: unless-stopped
+    volumes:
+      - redis_insight:/data
+    ports:
+      - ${REDIS_INSIGHT_PORT?Variable not set}:5540
+    networks:
+      - avli-network
+    env_file:
+      - .env
+
+  qdrant:
+    image: docker.io/qdrant/qdrant:v1.19.1-unprivileged
+    container_name: qdrant-vector-db
+    restart: unless-stopped
+    volumes:
+      - ./qdrant-vector-db/qdrant_data:/qdrant/storage
+    ports:
+      - ${QDRANT_REST_PORT?Variable not set}:6333
+    configs:
+      - source: qdrant_config
+        target: /qdrant/config/production.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:6333"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+      start_period: 5s
+    networks:
+      - avli-network
+    env_file:
+      - .env
+
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
+
+volumes:
+  redis_data:
+    driver: local
+  redis_insight:
+    driver: local
+  qdrant_storage:
+    driver: local
+
+networks:
+  avli-network:
+    driver: bridge
