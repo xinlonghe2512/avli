@@ -3,7 +3,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
 
 
-async def process_and_ingest(raw_text: str, source_url: str):
+async def process_and_ingest(raw_text: str, _source_url: str) -> None:
     # 1. Chunk document
     chunks = text_splitter.split_text(raw_text)
 
@@ -19,4 +19,4 @@ async def process_and_ingest(raw_text: str, source_url: str):
     #     embeddings=embeddings,
     #     metadata=[{"url": source_url} for _ in chunks]
     # )
-    print(f"Ingested {len(chunks)} chunks from: {source_url}")
+    # print(f"Ingested {len(chunks)} chunks from: {source_url}")

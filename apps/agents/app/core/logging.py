@@ -1,6 +1,6 @@
 """Logging configuration and setup for the application.
 
-This module provides structured logging configuration using structlog,
+Provides structured logging configuration using structlog,
 with environment-specific formatters and handlers. It supports both
 console-friendly development logging and JSON-formatted production logging.
 """

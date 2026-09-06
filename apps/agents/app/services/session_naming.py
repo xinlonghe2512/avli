@@ -10,13 +10,9 @@ On the first message of a new session this module:
 """
 
 import asyncio
+from collections.abc import Sequence
 
-from app.core.metrics import session_names_generated_total
-from app.core.prompts import SESSION_TITLE_PROMPT
-from app.models.session import Session as ChatSession
-from app.services.database import database_service
-from app.services.llm import llm_service
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from sqlmodel import (
     Session as DBSession,
 )
@@ -26,11 +22,16 @@ from sqlmodel import (
 )
 
 from app.core.logging import logger
+from app.core.metrics import session_names_generated_total
+from app.core.prompts import SESSION_TITLE_PROMPT
+from app.models.session import Session as ChatSession
 from app.schemas.chat import SessionTitle
+from app.services.database import database_service
+from app.services.llm import llm_service
 
 _PLACEHOLDER_MAX = 40
 
-_background_tasks: set[asyncio.Task] = set()
+_background_tasks: set[asyncio.Task[None]] = set()
 
 
 def _build_placeholder(user_message: str) -> str:
@@ -76,7 +77,11 @@ async def _persist_session_name(session_id: str, user_message: str) -> None:
         logger.exception("session_name_generation_failed", session_id=session_id)
 
 
-def maybe_name_session(session_id: str, session_name: str, messages: list) -> None:
+def maybe_name_session(
+    session_id: str,
+    session_name: str,
+    messages: Sequence[BaseMessage],
+) -> None:
     """Trigger session auto-naming if the session is still unnamed.
 
     Safe to call from any chat endpoint — concurrent callers for the same
@@ -84,10 +89,23 @@ def maybe_name_session(session_id: str, session_name: str, messages: list) -> No
     """
     if session_name:
         return
-    first_user_msg = next((m.content for m in messages if m.role == "user"), None)
+
+    first_user_msg: str | None = next(
+        (
+            message.content
+            for message in messages
+            if isinstance(message, HumanMessage) and isinstance(message.content, str)
+        ),
+        None,
+    )
+
     if not first_user_msg:
         return
-    if _claim_session(session_id, _build_placeholder(first_user_msg)):
+
+    if _claim_session(
+        session_id,
+        _build_placeholder(first_user_msg),
+    ):
         task = asyncio.create_task(_persist_session_name(session_id, first_user_msg))
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)

@@ -1,14 +1,11 @@
 """Authentication and authorization endpoints for the API.
 
-This module provides endpoints for user registration, login, session management,
+Provides endpoints for user registration, login, session management,
 and token verification.
 """
 
 import uuid
 
-from app.models.session import Session
-from app.models.user import User
-from app.services.database import database_service
 from fastapi import (
     APIRouter,
     Depends,
@@ -25,12 +22,15 @@ from app.core.logging import (
     bind_context,
     logger,
 )
+from app.models.session import Session
+from app.models.user import User
 from app.schemas.auth import (
     SessionResponse,
     TokenResponse,
     UserCreate,
     UserResponse,
 )
+from app.services.database import database_service
 from app.utils.auth import (
     create_access_token,
     verify_token,
@@ -153,7 +153,7 @@ async def get_current_session(
 
 
 @router.post("/register", response_model=UserResponse)
-async def register_user(request: Request, user_data: UserCreate):
+async def register_user(_request: Request, user_data: UserCreate) -> UserResponse:
     """Register a new user.
 
     Args:
@@ -200,11 +200,11 @@ async def register_user(request: Request, user_data: UserCreate):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
-    request: Request,
+    _request: Request,
     email: str = Form(...),
     password: str = Form(...),
     grant_type: str = Form(default="password"),
-):
+) -> TokenResponse:
     """Login a user.
 
     Args:
@@ -251,7 +251,7 @@ async def login(
 
 
 @router.post("/session", response_model=SessionResponse)
-async def create_session(user: User = Depends(get_current_user)):
+async def create_session(user: User = Depends(get_current_user)) -> SessionResponse:
     """Create a new chat session for the authenticated user.
 
     Args:

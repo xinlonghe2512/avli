@@ -1,15 +1,13 @@
-"""Cache service with optional Redis/Valkey backend.
+"""Cache service with optional Redis backend.
 
-If VALKEY_HOST is configured, uses Redis client to connect to Valkey for distributed caching.
+If REDIS_HOST is configured, uses Redis client to connect to Redis for distributed caching.
 Otherwise, falls back to a simple in-memory TTL cache.
 """
 
 import hashlib
 import time
-from collections.abc import Awaitable
 from typing import (
     TYPE_CHECKING,
-    cast,
 )
 
 from app.core.config import settings
@@ -32,9 +30,9 @@ else:
 
 
 class InMemoryCacheService:
-    """Simple in-memory TTL cache fallback when Valkey is not available."""
+    """Simple in-memory TTL cache fallback when Redis is not available."""
 
-    def __init__(self, default_ttl: int = 60):
+    def __init__(self, default_ttl: int = 60) -> None:
         """Initialize in-memory cache.
 
         Args:
@@ -89,10 +87,10 @@ class InMemoryCacheService:
         self._cache.clear()
 
 
-class ValkeyCacheService:
-    """Redis/Valkey cache backend for distributed caching."""
+class RedisCacheService:
+    """Redis cache backend for distributed caching."""
 
-    def __init__(self, default_ttl: int = 60):
+    def __init__(self, default_ttl: int = 60) -> None:
         """Initialize cache service with Redis client.
 
         Args:
@@ -102,27 +100,27 @@ class ValkeyCacheService:
         self._default_ttl = default_ttl
 
     async def initialize(self) -> None:
-        """Connect to Redis/Valkey server."""
+        """Connect to Redis server."""
         client = Redis(
-            host=settings.VALKEY_HOST,
-            port=settings.VALKEY_PORT,
-            db=settings.VALKEY_DB,
-            password=settings.VALKEY_PASSWORD or None,
-            max_connections=settings.VALKEY_MAX_CONNECTIONS,
+            host=settings.REDIS_HOST,
+            port=settings.REDIS_PORT,
+            db=settings.REDIS_DB,
+            password=settings.REDIS_PASSWORD or None,
+            max_connections=settings.REDIS_MAX_CONNECTIONS,
             decode_responses=True,
         )
-        await cast(Awaitable[bool], client.ping())
+        await client.ping()
         self._client = client
         logger.info(
             "cache_initialized",
             backend="redis",
-            host=settings.VALKEY_HOST,
-            port=settings.VALKEY_PORT,
+            host=settings.REDIS_HOST,
+            port=settings.REDIS_PORT,
             ttl=self._default_ttl,
         )
 
-    async def get(self, key: str) -> str | None:
-        """Get a value from Valkey.
+    async def get(self, key: str) -> bytes | str | None:
+        """Get a value from Redis.
 
         Args:
             key: The cache key.
@@ -139,7 +137,7 @@ class ValkeyCacheService:
             return None
 
     async def set(self, key: str, value: str, ttl: int | None = None) -> None:
-        """Set a value in Valkey with TTL.
+        """Set a value in Redis with TTL.
 
         Args:
             key: The cache key.
@@ -154,7 +152,7 @@ class ValkeyCacheService:
             logger.warning("cache_set_failed", key=key, error=str(e))
 
     async def delete(self, key: str) -> None:
-        """Delete a value from Valkey.
+        """Delete a value from Redis.
 
         Args:
             key: The cache key.
@@ -167,13 +165,13 @@ class ValkeyCacheService:
             logger.warning("cache_delete_failed", key=key, error=str(e))
 
     async def close(self) -> None:
-        """Close the Valkey connection."""
+        """Close the Redis connection."""
         if self._client:
             await self._client.aclose()
             logger.info("cache_connection_closed")
 
 
-def _create_cache_service() -> InMemoryCacheService | ValkeyCacheService:
+def _create_cache_service() -> InMemoryCacheService | RedisCacheService:
     """Create the appropriate cache service based on configuration.
 
     Returns:
@@ -181,10 +179,10 @@ def _create_cache_service() -> InMemoryCacheService | ValkeyCacheService:
     """
     ttl = settings.CACHE_TTL_SECONDS
 
-    if settings.VALKEY_HOST and REDIS_AVAILABLE:
-        return ValkeyCacheService(default_ttl=ttl)
+    if settings.REDIS_HOST and REDIS_AVAILABLE:
+        return RedisCacheService(default_ttl=ttl)
 
-    if settings.VALKEY_HOST and not REDIS_AVAILABLE:
+    if settings.REDIS_HOST and not REDIS_AVAILABLE:
         logger.warning(
             "redis_client_not_installed",
             hint="install with: uv add redis --optional cache",

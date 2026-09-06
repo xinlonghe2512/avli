@@ -1,11 +1,11 @@
 """Prometheus metrics configuration for the application.
 
-This module sets up and configures Prometheus metrics for monitoring the application.
+Sets up and configures Prometheus metrics for monitoring the application.
 """
 
 from fastapi import FastAPI
 from prometheus_client import Counter, Gauge, Histogram
-from starlette_prometheus import PrometheusMiddleware, metrics
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # Request metrics
 http_requests_total = Counter(
@@ -54,8 +54,15 @@ def setup_metrics(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
-    # Add Prometheus middleware
-    app.add_middleware(PrometheusMiddleware)
+    # Initialize the instrumentator with default settings
+    # This automatically captures HTTP request counts, paths, status codes, and methods
+    instrumentator = Instrumentator(
+        should_group_status_codes=False,
+        should_ignore_untemplated=True,
+        should_instrument_requests_inprogress=True,
+        inprogress_name="http_requests_inprogress",
+        inprogress_labels=True,
+    )
 
-    # Add metrics endpoint
-    app.add_route("/metrics", metrics)
+    # Instrument the app and expose the /metrics endpoint
+    instrumentator.instrument(app).expose(app, endpoint="/metrics")

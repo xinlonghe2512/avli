@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.logging import logger
 
 
-def langfuse_init():
+def langfuse_init() -> None:
     """Initialize Langfuse."""
     if not settings.LANGFUSE_TRACING_ENABLED:
         logger.debug("langfuse_tracing_disabled")

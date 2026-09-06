@@ -1,23 +1,31 @@
 """Chatbot API endpoints for handling chat interactions.
 
-It provides endpoints for chat interactions, including regular chat,
+Provides endpoints for chat interactions, including regular chat,
 streaming chat, message history management, and chat history clearing.
 """
 
 import json
 
-from app.api.v1.routes.auth import get_current_session
-from app.core.langgraph.graph import LangGraphAgent
-from app.core.metrics import llm_stream_duration_seconds
-from fastapi.responses import StreamingResponse
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+)
+from fastapi.responses import JSONResponse, StreamingResponse
 
+from app.api.v1.routes.auth import get_current_session
 from app.core.config import settings
+from app.core.langgraph.graph import LangGraphAgent
 from app.core.logging import logger
+from app.core.metrics import llm_stream_duration_seconds
+from app.models.session import Session
 from app.schemas.chat import (
     ChatRequest,
     ChatResponse,
     StreamResponse,
 )
+from app.services.session_naming import maybe_name_session
 
 router = APIRouter()
 agent = LangGraphAgent()
@@ -25,10 +33,10 @@ agent = LangGraphAgent()
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(
-    request: Request,
+    _request: Request,
     chat_request: ChatRequest,
     session: Session = Depends(get_current_session),
-):
+) -> ChatResponse:
     """Process a chat request using LangGraph.
 
     Args:
@@ -69,10 +77,10 @@ async def chat(
 
 @router.post("/chat/stream")
 async def chat_stream(
-    request: Request,
+    _request: Request,
     chat_request: ChatRequest,
     session: Session = Depends(get_current_session),
-):
+) -> StreamingResponse:
     """Process a chat request using LangGraph with streaming response.
 
     Args:
@@ -144,9 +152,9 @@ async def chat_stream(
 
 @router.get("/messages", response_model=ChatResponse)
 async def get_session_messages(
-    request: Request,
+    _request: Request,
     session: Session = Depends(get_current_session),
-):
+) -> ChatResponse:
     """Get all messages for a session.
 
     Args:
@@ -169,9 +177,9 @@ async def get_session_messages(
 
 @router.delete("/messages")
 async def clear_chat_history(
-    request: Request,
+    _request: Request,
     session: Session = Depends(get_current_session),
-):
+) -> JSONResponse:
     """Clear all messages for a session.
 
     Args:
@@ -183,7 +191,7 @@ async def clear_chat_history(
     """
     try:
         await agent.clear_chat_history(session.id)
-        return {"message": "Chat history cleared successfully"}
+        return JSONResponse(content={"message": "Chat history cleared successfully"})
     except Exception as e:
         logger.exception(
             "clear_chat_history_failed", session_id=session.id, error=str(e)
