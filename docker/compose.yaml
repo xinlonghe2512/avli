@@ -1,6 +1,6 @@
 services:
   agents:
-    container_name: agents-app
+    container_name: agents
     build:
       context: .
       dockerfile: ../apps/agents/Dockerfile
@@ -30,7 +30,7 @@ services:
       - .env
 
   ingestor:
-    container_name: ingestor-app
+    container_name: ingestor
     build:
       context: .
       dockerfile: ../apps/ingestor/Dockerfile
@@ -38,7 +38,7 @@ services:
     volumes:
       - .:/workspace:cached
     ports:
-      - ${INGESTOR_REST_PORT?Variable not set}:9000
+      - ${INGESTOR_REST_PORT?Variable not set}:8001
     environment:
       - ENVIRONMENT=${ENVIRONMENT?Variable not set}
       - INGESTOR_CORS_ORIGINS=${INGESTOR_CORS_ORIGINS?Variable not set}
@@ -49,7 +49,7 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://localhost:9000/api/v1/utils/health-check/",
+          "http://localhost:8001/api/v1/utils/health-check/",
         ]
       interval: 10s
       timeout: 5s
@@ -81,7 +81,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - ${REDIS_REST_PORT?Variable not set}:6379
+      - ${REDIS_PORT?Variable not set}:6379
     environment:
       - REDIS_ARGS=--requirepass ${REDIS_PASSWORD?Variable not set} --appendonly yes
     healthcheck:

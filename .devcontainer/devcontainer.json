@@ -90,14 +90,14 @@
   },
   "postCreateCommand": "uv sync --all-packages",
 
-  "forwardPorts": [8000, 9000, 6333, 6379],
+  "forwardPorts": [8000, 8001, 6333, 6379],
 
   "portsAttributes": {
     "8000": {
       "label": "Agents",
       "onAutoForward": "notify"
     },
-    "9000": {
+    "8001": {
       "label": "Ingestor",
       "onAutoForward": "notify"
     },

@@ -8,6 +8,9 @@ requires-python = ">=3.13,<3.14"
 
 dependencies = [
   "aiocache>=0.12.3",
+  "asgi-correlation-id>=5.0.1",
+  "asgiref>=3.12.1",
+  "bcrypt>=5.0.0",
   "celery[redis]>=5.3.1",
   "fastapi[standard]>=0.141.1,<1.0.0",
   "langchain-community>=0.4.2",
@@ -18,9 +21,17 @@ dependencies = [
   "llama-cpp-python>=0.3.35",
   "llama-index>=0.14.24",
   "loguru>=0.7.3",
+  "mem0ai>=2.0.20",
+  "prometheus-client>=0.26.0",
+  "psycopg2-binary>=2.9.12",
+  "psycopg[binary]>=3.3.5",
   "pydantic-settings<3.0.0,>=2.2.1",
+  "python-jose[cryptography]>=3.5.0",
+  "python-multipart>=0.0.32",
   "sentence-transformers>=6.0.0",
+  "sqlmodel>=0.0.42",
   "sse-starlette>=3.4.8",
+  "starlette-prometheus>=0.10.0",
   "tenacity<10.0.0,>=8.2.3",
 ]
 
@@ -28,6 +39,7 @@ dependencies = [
 dev = [
   "coverage<8.0.0,>=7.4.3",
   "deepeval>=4.1.10",
+  "detect-secrets>=1.5.0",
   "pytest<10.0.0,>=7.4.3",
   "ragas>=0.4.3",
   "ruff<1.0.0,>=0.2.2",

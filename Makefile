@@ -20,11 +20,11 @@ dev: ## Show commands for running all services
 
 .PHONY: agents
 agents: ## Run the Agents FastAPI service in development mode
-	cd apps/agents && $(UV) run python main.py --env-file ../../$(ENV_FILE)
+	cd apps/agents && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 .PHONY: ingestor
 ingestor: ## Run the Ingestor FastAPI service in development mode
-	cd apps/ingestor && $(UV) run python main.py --env-file ../../$(ENV_FILE)
+	cd apps/ingestor && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
 # ---------------------- Dependencies ---------------------- #
 
@@ -113,27 +113,54 @@ clean: ## Remove caches and build artifacts
 	dist
 	build
 
-# ---------------------- Docker ---------------------- #
+# ---------------------- Python Docker Apps ---------------------- #
 
 .PHONY: docker-build-agents
-docker-build: ## Build the Agents Docker image
+docker-build-agents: ## Build the Agents Docker image
 	docker build -t $(PROJECT_NAME)-agents apps/agents
 
 .PHONY: docker-build-ingestor
 docker-build-ingestor: ## Build the Ingestor Docker image
 	docker build -t $(PROJECT_NAME)-ingestor apps/ingestor
 
+.PHONY: docker-build-celery
+docker-build-celery: ## Build the Celery Docker image
+	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
+
+.PHONY: docker-build
+docker-build: docker-build-agents docker-build-ingestor docker-build-celery ## Build all Docker images
+
 .PHONY: docker-up
 docker-up: ## Start the development Docker Compose stack
-	docker compose -f compose.dev.yml up -d
+	docker compose -f docker/compose.yaml up -d --build
 
 .PHONY: docker-down
 docker-down: ## Stop the development Docker Compose stack
-	docker compose -f compose.dev.yml down
+	docker compose -f docker/compose.yaml down
 
 .PHONY: docker-logs
 docker-logs: ## Follow development Docker Compose logs
-	docker compose -f compose.dev.yml logs -f
+	docker compose -f docker/compose.yaml logs -f
+
+.PHONY: docker-restart
+docker-restart: docker-down docker-up ## Restart the development Docker Compose stack
+
+# ---------------------- Langfuse Docker ---------------------- #
+
+.PHONY: langfuse-up
+langfuse-up: ## Start the Langfuse stack
+	docker compose -f docker/compose-langfuse.yaml up -d
+
+.PHONY: langfuse-down
+langfuse-down: ## Stop the Langfuse stack
+	docker compose -f docker/compose-langfuse.yaml down
+
+.PHONY: langfuse-logs
+langfuse-logs: ## Follow Langfuse logs
+	docker compose -f docker/compose-langfuse.yaml logs -f
+
+.PHONY: langfuse-restart
+langfuse-restart: langfuse-down langfuse-up ## Restart the Langfuse stack
 
 # ---------------------- Help ---------------------- #
 .PHONY: help

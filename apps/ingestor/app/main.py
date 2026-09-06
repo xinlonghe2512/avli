@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.scheduler import init_scheduler
+from app.pipeline.scheduler import init_scheduler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ingestor")

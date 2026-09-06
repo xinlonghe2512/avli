@@ -1,9 +1,20 @@
+"""Main application entry point of Agents"""
+
+from contextlib import asynccontextmanager
+from datetime import datetime
+
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
+
+
+from app.core.cache import cache_service
 from app.core.config import settings
+from app.core.logging import setup_logging
+
+setup_logging()
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
