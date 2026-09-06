@@ -125,6 +125,15 @@ services:
       retries: 3
       timeout: 10s
       start_period: 5s
+
+  redis:
+    image: docker.io/redis:8.10.1-alpine3.23
+    container_name: redis-db
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - ${REDIS_REST_PORT?Variable not set}:6379
     networks:
       - avli-network
     env_file:
