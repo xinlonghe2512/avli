@@ -3,7 +3,7 @@
 import json
 import time
 import tracemalloc
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from typing import (
     TYPE_CHECKING,
     override,
@@ -25,13 +25,10 @@ from app.core.logging import (
     logger,
 )
 
-# REMOVED: Custom HTTP metrics imports since prometheus-fastapi-instrumentator
-# handles this automatically via setup_metrics(app)
-
 if TYPE_CHECKING:
-    from pyinstrument import Profiler  # pyright: ignore[reportMissingImports]
+    from pyinstrument import Profiler
     from pyinstrument.renderers import (
-        JSONRenderer,  # pyright: ignore[reportMissingImports]
+        JSONRenderer,
     )
 
     PYINSTRUMENT_AVAILABLE = True
@@ -51,7 +48,9 @@ class LoggingContextMiddleware(BaseHTTPMiddleware):
     """Middleware for adding user_id and session_id to logging context."""
 
     @override
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Extract user_id and session_id from authenticated requests and add to logging context.
 
         Args:
@@ -115,7 +114,9 @@ class ProfilingMiddleware(BaseHTTPMiddleware):
     """
 
     @override
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Profile every request; save enriched JSON if duration exceeds threshold."""
         if not PYINSTRUMENT_AVAILABLE:
             return await call_next(request)

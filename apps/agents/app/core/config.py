@@ -6,7 +6,7 @@ configuration value parsing.
 """
 
 import os
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -23,7 +23,7 @@ WEAK_JWT_SECRET_KEYS = {
 
 
 # Define environment types
-class Environment(str, Enum):
+class Environment(StrEnum):
     """Application environment types.
 
     Defines the possible environments the application can run in:
@@ -84,33 +84,38 @@ ENV_FILE = load_env_file()
 
 
 # Parse list values from environment variables
-def parse_list_from_env(env_key, default=None):
+def parse_list_from_env(
+    env_key: str,
+    default: list[str] | None = None,
+) -> list[str]:
     """Parse a comma-separated list from an environment variable."""
     value = os.getenv(env_key)
+
     if not value:
         return default or []
 
-    # Remove quotes if they exist
     value = value.strip("\"'")
-    # Handle single value case
-    if "," not in value:
-        return [value]
-    # Split comma-separated values
+
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
 # Parse dict of lists from environment variables with prefix
-def parse_dict_of_lists_from_env(prefix, default_dict=None):
+def parse_dict_of_lists_from_env(
+    prefix: str,
+    default_dict: dict[str, list[str]] | None = None,
+) -> dict[str, list[str]]:
     """Parse dictionary of lists from environment variables with a common prefix."""
     result = default_dict or {}
 
-    # Look for all env vars with the given prefix
+    # Look for all env vars with the given prefix.
     for key, value in os.environ.items():
         if key.startswith(prefix):
-            endpoint = key[len(prefix) :].lower()  # Extract endpoint name
-            # Parse the values for this endpoint
+            endpoint = key[len(prefix) :].lower()
+
+            # Parse the values for this endpoint.
             if value:
                 value = value.strip("\"'")
+
                 if "," in value:
                     result[endpoint] = [
                         item.strip() for item in value.split(",") if item.strip()
@@ -124,7 +129,7 @@ def parse_dict_of_lists_from_env(prefix, default_dict=None):
 class Settings:
     """Application settings without using pydantic."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize application settings from environment variables.
 
         Loads and sets all configuration values from environment variables,
