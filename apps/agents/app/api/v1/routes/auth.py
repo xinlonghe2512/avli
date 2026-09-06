@@ -293,7 +293,7 @@ async def update_session_name(
     session_id: str,
     name: str = Form(...),
     current_session: Session = Depends(get_current_session),
-):
+) -> SessionResponse:
     """Update a session's name.
 
     Args:
@@ -335,7 +335,7 @@ async def update_session_name(
 @router.delete("/session/{session_id}")
 async def delete_session(
     session_id: str, current_session: Session = Depends(get_current_session)
-):
+) -> None:
     """Delete a session for the authenticated user.
 
     Args:
@@ -368,7 +368,9 @@ async def delete_session(
 
 
 @router.get("/sessions", response_model=list[SessionResponse])
-async def get_user_sessions(user: User = Depends(get_current_user)):
+async def get_user_sessions(
+    user: User = Depends(get_current_user),
+) -> list[SessionResponse]:
     """Get all session IDs for the authenticated user.
 
     Args:

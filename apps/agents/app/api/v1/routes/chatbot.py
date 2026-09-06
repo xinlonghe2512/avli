@@ -5,6 +5,7 @@ streaming chat, message history management, and chat history clearing.
 """
 
 import json
+from collections.abc import AsyncGenerator
 
 from fastapi import (
     APIRouter,
@@ -104,7 +105,7 @@ async def chat_stream(
         if settings.SESSION_NAMING_ENABLED:
             maybe_name_session(session.id, session.name, chat_request.messages)
 
-        async def event_generator():
+        async def event_generator() -> AsyncGenerator[str]:
             """Generate streaming events.
 
             Yields:

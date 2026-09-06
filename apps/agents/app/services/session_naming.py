@@ -12,7 +12,12 @@ On the first message of a new session this module:
 import asyncio
 from collections.abc import Sequence
 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+)
 from sqlmodel import (
     Session as DBSession,
 )
@@ -25,7 +30,7 @@ from app.core.logging import logger
 from app.core.metrics import session_names_generated_total
 from app.core.prompts import SESSION_TITLE_PROMPT
 from app.models.session import Session as ChatSession
-from app.schemas.chat import SessionTitle
+from app.schemas.chat import Message, SessionTitle
 from app.services.database import database_service
 from app.services.llm import llm_service
 
@@ -77,10 +82,28 @@ async def _persist_session_name(session_id: str, user_message: str) -> None:
         logger.exception("session_name_generation_failed", session_id=session_id)
 
 
+def _to_langchain_messages(
+    messages: Sequence[Message],
+) -> list[BaseMessage]:
+    """Convert API messages to LangChain messages."""
+    result: list[BaseMessage] = []
+
+    for message in messages:
+        match message.role:
+            case "user":
+                result.append(HumanMessage(content=message.content))
+            case "assistant":
+                result.append(AIMessage(content=message.content))
+            case "system":
+                result.append(SystemMessage(content=message.content))
+
+    return result
+
+
 def maybe_name_session(
     session_id: str,
     session_name: str,
-    messages: Sequence[BaseMessage],
+    messages: Sequence[Message],
 ) -> None:
     """Trigger session auto-naming if the session is still unnamed.
 
@@ -90,10 +113,12 @@ def maybe_name_session(
     if session_name:
         return
 
+    langchain_messages = _to_langchain_messages(messages)
+
     first_user_msg: str | None = next(
         (
             message.content
-            for message in messages
+            for message in langchain_messages
             if isinstance(message, HumanMessage) and isinstance(message.content, str)
         ),
         None,
