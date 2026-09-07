@@ -27,7 +27,7 @@ MessageInput = (
 
 # Cache tiktoken encoding at module level — thread-safe and reusable
 try:
-    _TIKTOKEN_ENCODING = tiktoken.encoding_for_model(settings.LLM_MODEL)
+    _TIKTOKEN_ENCODING = tiktoken.encoding_for_model(settings.LANGGRAPH_LLM_MODEL)
 except KeyError:
     _TIKTOKEN_ENCODING = tiktoken.get_encoding("cl100k_base")
 
@@ -150,7 +150,7 @@ def prepare_messages(
             list(messages),
             strategy="last",
             token_counter=_count_tokens_tiktoken,
-            max_tokens=settings.LLM_MAX_TOKENS,
+            max_tokens=settings.LANGGRAPH_LLM_MAX_TOKENS,
             start_on="human",
             include_system=False,
             allow_partial=False,

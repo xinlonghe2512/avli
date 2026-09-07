@@ -39,11 +39,11 @@ from psycopg.rows import (
 from psycopg_pool import AsyncConnectionPool
 
 from app.core.config import settings
+from app.core.langgraph.prompts import load_system_prompt
 from app.core.langgraph.tools import tools
 from app.core.logging import logger
 from app.core.metrics import llm_inference_duration_seconds
 from app.core.observability import langfuse_callback_handler
-from app.core.prompts import load_system_prompt
 from app.schemas.chat import Message
 from app.schemas.graph import GraphState
 from app.services.llm import llm_service
@@ -75,7 +75,7 @@ class LangGraphAgent:
         self._graph: CompiledStateGraph[GraphState] | None = None
         logger.info(
             "langgraph_agent_initialized",
-            model=settings.LLM_MODEL,
+            model=settings.LANGGRAPH_LLM_MODEL,
             environment=settings.ENVIRONMENT.value,
         )
 
@@ -145,7 +145,7 @@ class LangGraphAgent:
         model_name = (
             getattr(current_llm, "model_name", None)
             or getattr(current_llm, "model", None)
-            or settings.LLM_MODEL
+            or settings.LANGGRAPH_LLM_MODEL
         )
 
         username = config.get("metadata", {}).get("username")

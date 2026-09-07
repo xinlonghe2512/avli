@@ -68,10 +68,12 @@ class LLMService:
         self._default_bound_tools: list[ToolInput] = []
 
         try:
-            self._default_model_index = self._all_names.index(settings.LLM_MODEL)
+            self._default_model_index = self._all_names.index(
+                settings.LANGGRAPH_LLM_MODEL
+            )
             logger.info(
                 "llm_service_initialized",
-                default_model=settings.LLM_MODEL,
+                default_model=settings.LANGGRAPH_LLM_MODEL,
                 model_index=self._default_model_index,
                 total_models=len(self._all_names),
             )
@@ -80,7 +82,7 @@ class LLMService:
             fallback_name = self._all_names[0] if self._all_names else "none"
             logger.warning(
                 "default_model_not_found_using_first",
-                requested=settings.LLM_MODEL,
+                requested=settings.LANGGRAPH_LLM_MODEL,
                 using=fallback_name,
                 error=str(e),
             )
@@ -98,7 +100,7 @@ class LLMService:
         name = model_name or (
             self._all_names[self._default_model_index]
             if self._all_names
-            else settings.LLM_MODEL
+            else settings.LANGGRAPH_LLM_MODEL
         )
         model: BaseChatModel = LLMRegistry.get(name, **model_kwargs)
         if self._default_bound_tools:
@@ -162,15 +164,15 @@ class LLMService:
                     tools=active_tools,
                     model_kwargs=model_kwargs,
                 ),
-                timeout=settings.LLM_TOTAL_TIMEOUT,
+                timeout=settings.LANGGRAPH_LLM_TOTAL_TIMEOUT,
             )
         except TimeoutError:
             logger.exception(
                 "llm_total_timeout_exceeded",
-                timeout_seconds=settings.LLM_TOTAL_TIMEOUT,
+                timeout_seconds=settings.LANGGRAPH_LLM_TOTAL_TIMEOUT,
             )
             raise RuntimeError(
-                f"LLM call timed out after {settings.LLM_TOTAL_TIMEOUT}s total budget"
+                f"LLM call timed out after {settings.LANGGRAPH_LLM_TOTAL_TIMEOUT}s total budget"
             )
 
     def bind_tools(self, tools: Sequence[ToolInput]) -> "LLMService":
@@ -218,7 +220,7 @@ class LLMService:
     ) -> BaseMessage | BaseModel:
         """Execute a single model runnable with transient error retry logic."""
         retryer = AsyncRetrying(
-            stop=stop_after_attempt(settings.LLM_MAX_CALL_RETRIES),
+            stop=stop_after_attempt(settings.LANGGRAPH_LLM_MAX_CALL_RETRIES),
             wait=wait_exponential(multiplier=1, min=2, max=10),
             retry=retry_if_exception_type(TRANSIENT_ERRORS),
             before_sleep=before_sleep_log(logger, logging.WARNING),

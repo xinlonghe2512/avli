@@ -155,7 +155,7 @@ class Settings:
 
         # Langfuse Configuration
         self.LANGFUSE_TRACING_ENABLED = os.getenv(
-            "LANGFUSE_TRACING_ENABLED", "true"
+            "LANGFUSE_TRACING_ENABLED", "false"
         ).lower() in (
             "true",
             "1",
@@ -167,22 +167,72 @@ class Settings:
         self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
         # LangGraph Configuration
-        self.LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")
-        self.LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-        self.LLM_BASE_URL = os.getenv(
-            "LLM_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
+        self.LANGGRAPH_API_KEY = os.getenv("LANGGRAPH_API_KEY", "")
+        self.LANGGRAPH_BASE_URL = os.getenv(
+            "LANGGRAPH_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
         )
-        self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
-        self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
-        self.LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
-        self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", "3"))
-        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
+        self.LANGGRAPH_LLM_MODEL = os.getenv(
+            "LANGGRAPH_LLM_MODEL", "deepseek/deepseek-v4-flash"
+        )
+        self.LANGGRAPH_LLM_TEMPERATURE = float(
+            os.getenv("LANGGRAPH_LLM_TEMPERATURE", "0.2")
+        )
+        self.LANGGRAPH_LLM_MAX_TOKENS = int(
+            os.getenv("LANGGRAPH_LLM_MAX_TOKENS", "2000")
+        )
+        self.LANGGRAPH_LLM_MAX_CALL_RETRIES = int(
+            os.getenv("LANGGRAPH_LLM_MAX_CALL_RETRIES", "3")
+        )
+        self.LANGGRAPH_LLM_TOTAL_TIMEOUT = int(
+            os.getenv("LANGGRAPH_LLM_TOTAL_TIMEOUT", "60")
+        )
         self.SESSION_NAMING_ENABLED = (
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
 
+        # LlamaIndex Configuration
+        self.LLAMAINDEX_LLM_PROVIDER = os.getenv(
+            "LLAMAINDEX_LLM_PROVIDER", "openrouter"
+        )
+        self.LLAMAINDEX_LLM_MODEL = os.getenv(
+            "LLAMAINDEX_LLM_MODEL",
+            "deepseek/deepseek-v4-flash",
+        )
+        self.LLAMAINDEX_LLM_TEMPERATURE = float(
+            os.getenv("LLAMAINDEX_LLM_TEMPERATURE", "0.2")
+        )
+        self.LLAMAINDEX_LLM_MAX_TOKENS = int(
+            os.getenv("LLAMAINDEX_LLM_MAX_TOKENS", "2000")
+        )
+        self.LLAMAINDEX_EMBEDDING_PROVIDER = os.getenv(
+            "LLAMAINDEX_EMBEDDING_PROVIDER",
+            "openrouter",
+        )
+        self.LLAMAINDEX_EMBEDDING_MODEL = os.getenv(
+            "LLAMAINDEX_EMBEDDING_MODEL",
+            "baai/bge-m3",
+        )
+        self.LLAMAINDEX_TOP_K = int(os.getenv("LLAMAINDEX_TOP_K", "5"))
+        self.LLAMAINDEX_VECTOR_STORE = os.getenv(
+            "LLAMAINDEX_VECTOR_STORE",
+            "qdrant",
+        )
+        self.VECTOR_STORE_URL = os.getenv(
+            "VECTORDB_URL",
+            "http://localhost:6333",
+        )
+        self.VECTOR_STORE_COLLECTION = os.getenv(
+            "VECTORDB_COLLECTION",
+            "documents",
+        )
+        self.VECTOR_STORE_API_KEY = os.getenv("VECTOR_STORE_API_KEY", "")
+        self.VECTOR_STORE_CHUNK_SIZE = int(os.getenv("LLAMAINDEX_CHUNK_SIZE", "1024"))
+        self.VECTOR_STORE_CHUNK_OVERLAP = int(
+            os.getenv("LLAMAINDEX_CHUNK_OVERLAP", "200")
+        )
+
         # Long term memory Configuration
-        self.LONG_TERM_MEMORY_MODEL = os.getenv("LONG_TERM_MEMORY_MODEL", "gpt-5-nano")
+        self.LONG_TERM_MEMORY_MODEL = os.getenv("LONG_TERM_MEMORY_MODEL", "gpt-5")
         self.LONG_TERM_MEMORY_EMBEDDER_MODEL = os.getenv(
             "LONG_TERM_MEMORY_EMBEDDER_MODEL", "text-embedding-3-small"
         )
@@ -259,7 +309,9 @@ class Settings:
         self.EVALUATION_BASE_URL = os.getenv(
             "EVALUATION_BASE_URL", "https://api.openai.com/v1"
         )
-        self.EVALUATION_API_KEY = os.getenv("EVALUATION_API_KEY", self.LLM_API_KEY)
+        self.EVALUATION_API_KEY = os.getenv(
+            "EVALUATION_API_KEY", self.LANGGRAPH_API_KEY
+        )
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
 
         # Apply environment-specific settings
