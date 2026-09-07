@@ -9,10 +9,10 @@ from fastapi import (
     Request,
 )
 from fastapi.responses import JSONResponse
-from loguru import logger
 
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.chatbot import router as chatbot_router
+from app.core.logging import logger
 
 api_router = APIRouter()
 

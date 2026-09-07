@@ -10,7 +10,8 @@ from enum import StrEnum
 from pathlib import Path
 
 from dotenv import load_dotenv
-from loguru import logger
+
+from app.core.logging import logger
 
 WEAK_JWT_SECRET_KEYS = {
     "",
@@ -166,17 +167,19 @@ class Settings:
         self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
         # LangGraph Configuration
-        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-        self.DEFAULT_LLM_MODEL = os.getenv("DEFAULT_LLM_MODEL", "gpt-5.6-luna")
+        self.LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")
+        self.LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+        self.LLM_BASE_URL = os.getenv(
+            "LLM_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
+        )
+        self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
+        self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+        self.LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
+        self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", "3"))
+        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
         self.SESSION_NAMING_ENABLED = (
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
-        self.DEFAULT_LLM_TEMPERATURE = float(
-            os.getenv("DEFAULT_LLM_TEMPERATURE", "0.2")
-        )
-        self.MAX_TOKENS = int(os.getenv("MAX_TOKENS", "2000"))
-        self.MAX_LLM_CALL_RETRIES = int(os.getenv("MAX_LLM_CALL_RETRIES", "3"))
-        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
 
         # Long term memory Configuration
         self.LONG_TERM_MEMORY_MODEL = os.getenv("LONG_TERM_MEMORY_MODEL", "gpt-5-nano")
@@ -256,7 +259,7 @@ class Settings:
         self.EVALUATION_BASE_URL = os.getenv(
             "EVALUATION_BASE_URL", "https://api.openai.com/v1"
         )
-        self.EVALUATION_API_KEY = os.getenv("EVALUATION_API_KEY", self.OPENAI_API_KEY)
+        self.EVALUATION_API_KEY = os.getenv("EVALUATION_API_KEY", self.LLM_API_KEY)
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
 
         # Apply environment-specific settings

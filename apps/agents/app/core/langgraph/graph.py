@@ -2,7 +2,7 @@
 
 import asyncio
 from collections.abc import AsyncGenerator
-from typing import Literal, cast
+from typing import Any, Literal, cast
 from urllib.parse import quote_plus
 
 from langchain_core.callbacks import BaseCallbackHandler
@@ -49,7 +49,7 @@ from app.schemas.graph import GraphState
 from app.services.llm import llm_service
 from app.services.memory import memory_service
 from app.utils import (
-    dump_messages,
+    convert_messages,
     extract_text_content,
     prepare_messages,
     process_llm_response,
@@ -75,7 +75,7 @@ class LangGraphAgent:
         self._graph: CompiledStateGraph[GraphState] | None = None
         logger.info(
             "langgraph_agent_initialized",
-            model=settings.DEFAULT_LLM_MODEL,
+            model=settings.LLM_MODEL,
             environment=settings.ENVIRONMENT.value,
         )
 
@@ -145,7 +145,7 @@ class LangGraphAgent:
         model_name = (
             getattr(current_llm, "model_name", None)
             or getattr(current_llm, "model", None)
-            or settings.DEFAULT_LLM_MODEL
+            or settings.LLM_MODEL
         )
 
         username = config.get("metadata", {}).get("username")
@@ -160,7 +160,7 @@ class LangGraphAgent:
         try:
             # Use LLM service with automatic retries and circular fallback
             with llm_inference_duration_seconds.labels(model=model_name).time():
-                response_message = await self.llm_service.call(dump_messages(messages))
+                response_message = await self.llm_service.call(messages)
 
             # Process response to handle structured content blocks
             response_message = process_llm_response(response_message)
@@ -319,9 +319,11 @@ class LangGraphAgent:
             list[Message]: The response from the LLM.
         """
         graph = await self._get_graph()
+
         callbacks: list[BaseCallbackHandler] = (
             [langfuse_callback_handler] if settings.LANGFUSE_TRACING_ENABLED else []
         )
+
         config: RunnableConfig = {
             "configurable": {"thread_id": session_id},
             "callbacks": callbacks,
@@ -335,7 +337,11 @@ class LangGraphAgent:
         }
 
         try:
-            # Run state check and memory search concurrently to save 200-500ms
+            # Convert API Message objects to LangChain messages before
+            # passing them into the LangGraph state.
+            langchain_messages = convert_messages(messages)
+
+            # Run state check and memory search concurrently.
             state, relevant_memory = await asyncio.gather(
                 graph.aget_state(config),
                 memory_service.search(user_id, messages[-1].content),
@@ -347,57 +353,93 @@ class LangGraphAgent:
                     session_id=session_id,
                     next_nodes=state.next,
                 )
+
                 response = await graph.ainvoke(
                     Command(resume=messages[-1].content),
                     config=config,
                 )
             else:
                 relevant_memory = relevant_memory or "No relevant memory found."
-                response = await graph.ainvoke(
-                    input={
-                        "messages": dump_messages(messages),
+
+                graph_input = cast(
+                    GraphState,
+                    {
+                        "messages": langchain_messages,
                         "long_term_memory": relevant_memory,
                     },
+                )
+
+                response = await graph.ainvoke(
+                    input=graph_input,
                     config=config,
                 )
 
-            # Check if the graph was interrupted during this invocation
+            # Check if the graph was interrupted during this invocation.
             state = await graph.aget_state(config)
+
             if state.next:
                 interrupt_value = (
                     state.tasks[0].interrupts[0].value
                     if state.tasks
                     else "Waiting for input."
                 )
+
                 logger.info(
                     "graph_interrupted",
                     session_id=session_id,
                     interrupt_value=str(interrupt_value),
                 )
-                return [Message(role="assistant", content=str(interrupt_value))]
+
+                return [
+                    Message(
+                        role="assistant",
+                        content=str(interrupt_value),
+                    )
+                ]
 
             openai_msgs = cast(
-                list[dict], convert_to_openai_messages(response["messages"])
+                list[dict[str, Any]],
+                convert_to_openai_messages(response["messages"]),
             )
+
             asyncio.create_task(
-                memory_service.add(user_id, openai_msgs, config.get("metadata"))
+                memory_service.add(
+                    user_id,
+                    openai_msgs,
+                    config.get("metadata"),
+                )
             )
+
             return self.__process_messages(response["messages"])
+
         except GraphInterrupt:
             state = await graph.aget_state(config)
+
             interrupt_value = (
                 state.tasks[0].interrupts[0].value
                 if state.tasks
                 else "Waiting for input."
             )
+
             logger.info(
                 "graph_interrupted",
                 session_id=session_id,
                 interrupt_value=str(interrupt_value),
             )
-            return [Message(role="assistant", content=str(interrupt_value))]
+
+            return [
+                Message(
+                    role="assistant",
+                    content=str(interrupt_value),
+                )
+            ]
+
         except Exception as e:
-            logger.exception("get_response_failed", error=str(e), session_id=session_id)
+            logger.exception(
+                "get_response_failed",
+                error=str(e),
+                session_id=session_id,
+            )
             raise
 
     async def get_stream_response(
@@ -434,6 +476,8 @@ class LangGraphAgent:
         }
         graph = await self._get_graph()
 
+        langchain_messages = convert_messages(messages)
+
         try:
             # Run state check and memory search concurrently to save 200-500ms
             state, relevant_memory = await asyncio.gather(
@@ -442,30 +486,41 @@ class LangGraphAgent:
             )
 
             if state.next:
-                logger.info(
-                    "resuming_interrupted_graph_stream",
-                    session_id=session_id,
-                    next_nodes=state.next,
-                )
-                graph_input = Command(resume=messages[-1].content)
+                async for token, _ in graph.astream(
+                    Command(resume=messages[-1].content),
+                    config,
+                    stream_mode="messages",
+                ):
+                    if not isinstance(token, (AIMessage, AIMessageChunk)):
+                        continue
+
+                    text = extract_text_content(token.content)
+
+                    if text:
+                        yield text
             else:
                 relevant_memory = relevant_memory or "No relevant memory found."
-                graph_input = {
-                    "messages": dump_messages(messages),
-                    "long_term_memory": relevant_memory,
-                }
 
-            async for token, _ in graph.astream(
-                graph_input,
-                config,
-                stream_mode="messages",
-            ):
-                if not isinstance(token, (AIMessage, AIMessageChunk)):
-                    continue
+                graph_input = cast(
+                    GraphState,
+                    {
+                        "messages": langchain_messages,
+                        "long_term_memory": relevant_memory,
+                    },
+                )
 
-                text = extract_text_content(token.content)
-                if text:
-                    yield text
+                async for token, _ in graph.astream(
+                    graph_input,
+                    config,
+                    stream_mode="messages",
+                ):
+                    if not isinstance(token, (AIMessage, AIMessageChunk)):
+                        continue
+
+                    text = extract_text_content(token.content)
+
+                    if text:
+                        yield text
 
             # After streaming completes, check for interrupt or update memory
             state = await graph.aget_state(config)
@@ -483,8 +538,10 @@ class LangGraphAgent:
                 yield str(interrupt_value)
             elif state.values and "messages" in state.values:
                 openai_msgs = cast(
-                    list[dict], convert_to_openai_messages(state.values["messages"])
+                    list[dict[str, Any]],
+                    convert_to_openai_messages(state.values["messages"]),
                 )
+
                 asyncio.create_task(
                     memory_service.add(user_id, openai_msgs, config.get("metadata"))
                 )

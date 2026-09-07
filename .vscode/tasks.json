@@ -12,18 +12,8 @@
       "problemMatcher": []
     },
     {
-      "label": "Ingestor: Dev Server",
-      "type": "shell",
-      "command": "make ingestor",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
       "label": "Dev: Start All",
-      "dependsOn": ["Agents: Dev Server", "Ingestor: Dev Server"],
+      "dependsOn": ["Agents: Dev Server"],
       "dependsOrder": "parallel"
     },
     {
@@ -43,16 +33,6 @@
       "label": "Test: Agents",
       "type": "shell",
       "command": "make test-agents",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "label": "Test: Ingestor",
-      "type": "shell",
-      "command": "make test-ingestor",
       "options": {
         "cwd": "${workspaceFolder}"
       },

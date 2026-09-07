@@ -1,25 +1,21 @@
 [project]
 name = "avli-workspace"
 version = "0.1.0"
-description = "Monorepo for agents and ingestor services"
+description = "Monorepo for agents services"
 requires-python = ">=3.13"
 
 [dependency-groups]
 dev = [
-    "prek>=0.4.11,<1.0.0",
-    "ty>=0.0.74",
-    "zizmor>=1.28.0",
+  "prek>=0.4.11,<1.0.0",
+  "ty>=0.0.74",
+  "zizmor>=1.28.0",
 ]
 
 github-actions = [
-    "smokeshow >=0.5.0",
+  "smokeshow >=0.5.0",
 ]
 
-[tool.uv.workspace]
-members = ["apps/*"]
-
 [tool.ty]
-
 [tool.ty.environment]
 python-version = "3.13"
 
@@ -34,19 +30,22 @@ strict-equality-semantics = true
 
 [tool.typos.files]
 extend-exclude = [
-    "img/",
-    "uv.lock",
-    "**/coverage/",
-    "**/htmlcov/",
+  "img/",
+  "uv.lock",
+  "**/coverage/",
+  "**/htmlcov/",
 ]
 
 [tool.typos.default]
 extend-ignore-re = [
-    # GitHub usernames in @mentions
-    "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
-    # Name of the package in the PR title
-    "Bump certifi ",
+  # GitHub usernames in @mentions
+  "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
+  # Name of the package in the PR title
+  "Bump certifi ",
 ]
 
 [tool.typos.default.extend-identifiers]
 alls = "alls"
+
+[tool.uv.workspace]
+members = ["apps/*"]

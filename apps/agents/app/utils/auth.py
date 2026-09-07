@@ -11,9 +11,9 @@ from jose import (
     JWTError,
     jwt,
 )
-from loguru import logger
 
 from app.core.config import settings
+from app.core.logging import logger
 from app.schemas.auth import Token
 from app.utils.santize import sanitize_string
 

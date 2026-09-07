@@ -97,10 +97,6 @@
       "label": "Agents",
       "onAutoForward": "notify"
     },
-    "8001": {
-      "label": "Ingestor",
-      "onAutoForward": "notify"
-    },
     "6333": {
       "label": "Qdrant",
       "onAutoForward": "silent"

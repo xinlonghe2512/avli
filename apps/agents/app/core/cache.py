@@ -6,16 +6,14 @@ Otherwise, falls back to a simple in-memory TTL cache.
 
 import hashlib
 import time
-from typing import (
-    TYPE_CHECKING,
-)
+from typing import TYPE_CHECKING, Protocol, cast
 
 from app.core.config import settings
 from app.core.logging import logger
 
 # Try to import redis — it's an optional dependency
 if TYPE_CHECKING:
-    from redis.asyncio import Redis  # pyright: ignore[reportMissingImports]
+    from redis.asyncio import Redis
 
     REDIS_AVAILABLE = True
 else:
@@ -27,6 +25,23 @@ else:
         logger.debug("redis_not_available")
         Redis = None
         REDIS_AVAILABLE = False
+
+
+class CacheService(Protocol):
+    async def initialize(self) -> None: ...
+
+    async def get(self, key: str) -> str | None: ...
+
+    async def set(
+        self,
+        key: str,
+        value: str,
+        ttl: int | None = None,
+    ) -> None: ...
+
+    async def delete(self, key: str) -> None: ...
+
+    async def close(self) -> None: ...
 
 
 class InMemoryCacheService:
@@ -71,7 +86,8 @@ class InMemoryCacheService:
             value: The value to cache.
             ttl: Time-to-live in seconds. Uses default if not specified.
         """
-        expires_at = time.monotonic() + (ttl or self._default_ttl)
+        effective_ttl = ttl if ttl is not None else self._default_ttl
+        expires_at = time.monotonic() + effective_ttl
         self._cache[key] = (expires_at, value)
 
     async def delete(self, key: str) -> None:
@@ -101,6 +117,7 @@ class RedisCacheService:
 
     async def initialize(self) -> None:
         """Connect to Redis server."""
+
         client = Redis(
             host=settings.REDIS_HOST,
             port=settings.REDIS_PORT,
@@ -109,8 +126,10 @@ class RedisCacheService:
             max_connections=settings.REDIS_MAX_CONNECTIONS,
             decode_responses=True,
         )
+
         await client.ping()
         self._client = client
+
         logger.info(
             "cache_initialized",
             backend="redis",
@@ -119,7 +138,7 @@ class RedisCacheService:
             ttl=self._default_ttl,
         )
 
-    async def get(self, key: str) -> bytes | str | None:
+    async def get(self, key: str) -> str | None:
         """Get a value from Redis.
 
         Args:
@@ -130,8 +149,10 @@ class RedisCacheService:
         """
         if not self._client:
             return None
+
         try:
-            return await self._client.get(key)
+            value = await self._client.get(key)
+            return cast(str | None, value)
         except Exception as e:
             logger.warning("cache_get_failed", key=key, error=str(e))
             return None
@@ -147,7 +168,12 @@ class RedisCacheService:
         if not self._client:
             return
         try:
-            await self._client.set(key, value, ex=(ttl or self._default_ttl))
+            effective_ttl = ttl if ttl is not None else self._default_ttl
+            await self._client.set(
+                key,
+                value,
+                ex=effective_ttl,
+            )
         except Exception as e:
             logger.warning("cache_set_failed", key=key, error=str(e))
 
@@ -166,12 +192,14 @@ class RedisCacheService:
 
     async def close(self) -> None:
         """Close the Redis connection."""
-        if self._client:
+        if self._client is not None:
             await self._client.aclose()
+            self._client = None
+
             logger.info("cache_connection_closed")
 
 
-def _create_cache_service() -> InMemoryCacheService | RedisCacheService:
+def _create_cache_service() -> CacheService:
     """Create the appropriate cache service based on configuration.
 
     Returns:
@@ -207,4 +235,4 @@ def cache_key(prefix: str, *parts: str) -> str:
 
 
 # Global cache service singleton — initialized lazily in lifespan
-cache_service = _create_cache_service()
+cache_service: CacheService = _create_cache_service()

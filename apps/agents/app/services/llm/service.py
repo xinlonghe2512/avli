@@ -46,7 +46,7 @@ class ModelKwargs(TypedDict, total=False):
     temperature: float
     max_tokens: int
     reasoning: ReasoningConfig
-    timeout: float
+    timeout: int
     max_retries: int
 
 
@@ -68,12 +68,10 @@ class LLMService:
         self._default_bound_tools: list[ToolInput] = []
 
         try:
-            self._default_model_index = self._all_names.index(
-                settings.DEFAULT_LLM_MODEL
-            )
+            self._default_model_index = self._all_names.index(settings.LLM_MODEL)
             logger.info(
                 "llm_service_initialized",
-                default_model=settings.DEFAULT_LLM_MODEL,
+                default_model=settings.LLM_MODEL,
                 model_index=self._default_model_index,
                 total_models=len(self._all_names),
             )
@@ -82,7 +80,7 @@ class LLMService:
             fallback_name = self._all_names[0] if self._all_names else "none"
             logger.warning(
                 "default_model_not_found_using_first",
-                requested=settings.DEFAULT_LLM_MODEL,
+                requested=settings.LLM_MODEL,
                 using=fallback_name,
                 error=str(e),
             )
@@ -100,7 +98,7 @@ class LLMService:
         name = model_name or (
             self._all_names[self._default_model_index]
             if self._all_names
-            else settings.DEFAULT_LLM_MODEL
+            else settings.LLM_MODEL
         )
         model: BaseChatModel = LLMRegistry.get(name, **model_kwargs)
         if self._default_bound_tools:
@@ -220,7 +218,7 @@ class LLMService:
     ) -> BaseMessage | BaseModel:
         """Execute a single model runnable with transient error retry logic."""
         retryer = AsyncRetrying(
-            stop=stop_after_attempt(settings.MAX_LLM_CALL_RETRIES),
+            stop=stop_after_attempt(settings.LLM_MAX_CALL_RETRIES),
             wait=wait_exponential(multiplier=1, min=2, max=10),
             retry=retry_if_exception_type(TRANSIENT_ERRORS),
             before_sleep=before_sleep_log(logger, logging.WARNING),

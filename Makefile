@@ -16,15 +16,10 @@ shell: ## Open Python shell inside the uv environment
 dev: ## Show commands for running all services
 	@echo "Run the services in separate terminals:"
 	@echo " make agents"
-	@echo " make ingestor"
 
 .PHONY: agents
 agents: ## Run the Agents FastAPI service in development mode
 	cd apps/agents && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-.PHONY: ingestor
-ingestor: ## Run the Ingestor FastAPI service in development mode
-	cd apps/ingestor && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
 # ---------------------- Dependencies ---------------------- #
 
@@ -35,6 +30,10 @@ install: ## Install and sync all workspace dependencies
 .PHONY: lock
 lock: ## Update the uv lockfile
 	$(UV) lock
+
+.PHONY: upgrade
+upgrade: ## Upgrade all dependencies and update the uv lockfile
+	$(UV) lock --upgrade
 
 .PHONY: sync
 sync: ## Sync the uv workspace from the lockfile
@@ -57,18 +56,11 @@ format-check: ## Check formatting without modifying files
 typecheck: ## Type-check the workspace with ty
 	$(UV) run ty check
 
-# ---------------------- Testing ---------------------- #
-
-.PHONY: test
-test: test-agents test-ingestor ## Run all service test suites
+# ---------------------- Testing ---------------------- ### Run all service test suites
 
 .PHONY: test-agents
 test-agents: ## Run Agents tests
 	cd apps/agents && $(UV) run pytest tests
-
-.PHONY: test-ingestor
-test-ingestor: ## Run Ingestor tests
-	cd apps/ingestor && $(UV) run pytest tests
 
 # ---------------------- DeepEval ---------------------- #
 
@@ -119,16 +111,12 @@ clean: ## Remove caches and build artifacts
 docker-build-agents: ## Build the Agents Docker image
 	docker build -t $(PROJECT_NAME)-agents apps/agents
 
-.PHONY: docker-build-ingestor
-docker-build-ingestor: ## Build the Ingestor Docker image
-	docker build -t $(PROJECT_NAME)-ingestor apps/ingestor
-
 .PHONY: docker-build-celery
 docker-build-celery: ## Build the Celery Docker image
 	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
 
 .PHONY: docker-build
-docker-build: docker-build-agents docker-build-ingestor docker-build-celery ## Build all Docker images
+docker-build: docker-build-agents docker-build-celery ## Build all Docker images
 
 .PHONY: docker-up
 docker-up: ## Start the development Docker Compose stack
@@ -162,13 +150,31 @@ langfuse-logs: ## Follow Langfuse logs
 .PHONY: langfuse-restart
 langfuse-restart: langfuse-down langfuse-up ## Restart the Langfuse stack
 
+
+# ---------------------- Prometheus-Loki-Grafana Docker ---------------------- #
+
+.PHONY: plg-up
+plg-up: ## Start the PLG stack
+	docker compose -f docker/compose-plg.yaml up -d
+
+.PHONY: plg-down
+plg-down: ## Stop the PLG stack
+	docker compose -f docker/compose-plg.yaml down
+
+.PHONY: plg-logs
+plg-logs: ## Follow PLG logs
+	docker compose -f docker/compose-plg.yaml logs -f
+
+.PHONY: plg-restart
+plg-restart: plg-down plg-up ## Restart the PLG stack
+
 # ---------------------- Help ---------------------- #
 .PHONY: help
 help: ## Show available Make targets
 	@echo ""
 	@echo "Available Commands:"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.## .$$' $(MAKEFILE_LIST) |
-	sort |
-	awk 'BEGIN {FS = ":.*## "}; {printf " \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
+		sort | \
+		awk 'BEGIN {FS = ":.*## "}; {printf " \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""

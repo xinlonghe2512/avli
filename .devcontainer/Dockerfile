@@ -41,10 +41,6 @@ COPY --chown=vscode:vscode \
   apps/agents/pyproject.toml \
   apps/agents/pyproject.toml
 
-COPY --chown=vscode:vscode \
-  apps/ingestor/pyproject.toml \
-  apps/ingestor/pyproject.toml
-
 USER vscode
 
 RUN uv sync --frozen
