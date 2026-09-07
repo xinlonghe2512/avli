@@ -38,8 +38,8 @@ COPY --chown=vscode:vscode \
   ./
 
 COPY --chown=vscode:vscode \
-  apps/agents/pyproject.toml \
-  apps/agents/pyproject.toml
+  apps/asset-intel-service/pyproject.toml \
+  apps/asset-intel-service/pyproject.toml
 
 USER vscode
 

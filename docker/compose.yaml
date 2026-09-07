@@ -1,17 +1,17 @@
 services:
-  agents:
-    container_name: agents
+  asset-intel:
+    container_name: asset-intel
     build:
       context: .
-      dockerfile: ../apps/agents/Dockerfile
+      dockerfile: ../apps/asset-intel-service/Dockerfile
     restart: unless-stopped
     volumes:
       - .:/workspace:cached
     ports:
-      - ${AGENTS_REST_PORT?Variable not set}:8000
+      - ${AIS_REST_PORT?Variable not set}:8000
     environment:
       - ENVIRONMENT=${ENVIRONMENT?Variable not set}
-      - AGENTS_CORS_ORIGINS=${AGENTS_CORS_ORIGINS?Variable not set}
+      - AIS_CORS_ORIGINS=${AIS_CORS_ORIGINS?Variable not set}
       - SECRET_KEY=${SECRET_KEY?Variable not set}
     healthcheck:
       test:
@@ -28,6 +28,9 @@ services:
       - avli-network
     env_file:
       - .env
+    depends_on:
+      pgvector:
+        condition: service_healthy
 
   celery:
     container_name: celery-worker
@@ -43,6 +46,28 @@ services:
       - .env
     depends_on:
       - redis
+
+  pgvector:
+    container_name: pgvector
+    image: docker.io/pgvector/pgvector:pg18-trixie
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT?Variable not set}:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avli-network
+    env_file:
+      - .env
 
   redis:
     container_name: redis
@@ -80,10 +105,10 @@ services:
 
   qdrant:
     image: docker.io/qdrant/qdrant:v1.19.1-unprivileged
-    container_name: qdrant-vector-db
+    container_name: qdrant
     restart: unless-stopped
     volumes:
-      - ./qdrant-vector-db/qdrant_data:/qdrant/storage
+      - qdrant_data:/qdrant/storage
     ports:
       - ${QDRANT_REST_PORT?Variable not set}:6333
     configs:
@@ -106,11 +131,13 @@ configs:
       log_level: INFO
 
 volumes:
+  postgres-data:
+    driver: local
   redis_data:
     driver: local
   redis_insight:
     driver: local
-  qdrant_storage:
+  qdrant_data:
     driver: local
 
 networks:

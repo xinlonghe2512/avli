@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Agents: Debug",
+      "name": "Asset Intelligence Service: Debug",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "cwd": "${workspaceFolder}/apps/agents",
+      "cwd": "${workspaceFolder}/apps/asset-intel-service",
       "args": [
         "app.main:app",
         "--host",
@@ -33,11 +33,11 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Tests: Agents",
+      "name": "Tests: Asset Intelligence Service",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
-      "cwd": "${workspaceFolder}/apps/agents",
+      "cwd": "${workspaceFolder}/apps/asset-intel-service",
       "args": ["-v"],
       "justMyCode": true,
       "console": "integratedTerminal"
@@ -47,7 +47,7 @@
   "compounds": [
     {
       "name": "Avli: Debug All",
-      "configurations": ["Agents: Debug"],
+      "configurations": ["Asset Intelligence Service: Debug"],
       "stopAll": true
     }
   ]

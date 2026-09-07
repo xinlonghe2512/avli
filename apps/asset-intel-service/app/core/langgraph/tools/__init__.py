@@ -5,9 +5,9 @@ Custom tools that can be used with LangGraph to extend the capabilities of langu
 Currently includes tools for web search and other external integrations.
 """
 
-from langchain_core.tools.base import BaseTool
+from langchain_core.tools import BaseTool
 
 from .ask_human import ask_human
-from .duckduckgo_search import duckduckgo_search_tool
+from .duckduckgo_search import duckduckgo_search as ddgs_tool
 
-tools: list[BaseTool] = [duckduckgo_search_tool, ask_human]
+tools: list[BaseTool] = [ddgs_tool, ask_human]

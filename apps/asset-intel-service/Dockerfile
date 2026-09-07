@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --locked \
     --no-install-project \
     --no-dev \
-    --package avli-agents
+    --package avli-asset-intel-service
 
 # Copy the rest of the application
 COPY . /app
@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync \
     --locked \
     --no-dev \
-    --package avli-agents
+    --package avli-asset-intel-service
 
 # Expose app port
 EXPOSE 8000

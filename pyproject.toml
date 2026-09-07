@@ -1,7 +1,7 @@
 [project]
 name = "avli-workspace"
 version = "0.1.0"
-description = "Monorepo for agents services"
+description = "Monorepo for Avli Project"
 requires-python = ">=3.13"
 
 [dependency-groups]

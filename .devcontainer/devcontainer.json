@@ -94,8 +94,12 @@
 
   "portsAttributes": {
     "8000": {
-      "label": "Agents",
+      "label": "Asset Intelligence Service",
       "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "Postgres",
+      "onAutoForward": "silent"
     },
     "6333": {
       "label": "Qdrant",

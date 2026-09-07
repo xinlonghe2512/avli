@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Agents: Dev Server",
+      "label": "Asset Intelligence Service: Dev Server",
       "type": "shell",
-      "command": "make agents",
+      "command": "make asset-intel-service",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -13,7 +13,7 @@
     },
     {
       "label": "Dev: Start All",
-      "dependsOn": ["Agents: Dev Server"],
+      "dependsOn": ["Asset Intelligence Service: Dev Server"],
       "dependsOrder": "parallel"
     },
     {
@@ -30,9 +30,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Test: Agents",
+      "label": "Test: Asset Intelligence Service",
       "type": "shell",
-      "command": "make test-agents",
+      "command": "make test-asset-intel-service",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -40,9 +40,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Eval: Agents",
+      "label": "Eval: Asset Intelligence Service",
       "type": "shell",
-      "command": "make eval-agents",
+      "command": "make eval-asset-intel-service",
       "options": {
         "cwd": "${workspaceFolder}"
       },

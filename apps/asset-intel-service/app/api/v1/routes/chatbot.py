@@ -140,7 +140,14 @@ async def chat_stream(
                 error_response = StreamResponse(content=str(e), done=True)
                 yield f"data: {json.dumps(error_response.model_dump(mode='json'))}\n\n"
 
-        return StreamingResponse(event_generator(), media_type="text/event-stream")
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+            },
+        )
 
     except Exception as e:
         logger.exception(

@@ -4,7 +4,7 @@ docs:
       - any-glob-to-any-file:
         - '**/*.md'
       - all-globs-to-all-files:
-        - '!apps/agents/**'
+        - '!apps/asset-intel-service/**'
         - '!.github/**'
         - '!scripts/**'
         - '!.gitignore'
@@ -20,4 +20,4 @@ internal:
         - .pre-commit-config.yaml
       - all-globs-to-all-files:
         - '!./**/*.md'
-        - '!apps/agents/**'
+        - '!apps/asset-intel-service/**'

@@ -15,11 +15,11 @@ shell: ## Open Python shell inside the uv environment
 .PHONY: dev
 dev: ## Show commands for running all services
 	@echo "Run the services in separate terminals:"
-	@echo " make agents"
+	@echo " make asset-intel-service"
 
-.PHONY: agents
-agents: ## Run the Agents FastAPI service in development mode
-	cd apps/agents && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+.PHONY: asset-intel-service
+asset-intel-service: ## Run the Asset Intelligence Service in development mode
+	cd apps/asset-intel-service && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # ---------------------- Dependencies ---------------------- #
 
@@ -56,17 +56,25 @@ format-check: ## Check formatting without modifying files
 typecheck: ## Type-check the workspace with ty
 	$(UV) run ty check
 
+.PHONY: audit
+audit: ## Check project's runtime dependencies
+	$(UV) audit --no-dev || true
+
+# .PHONY: scan
+# scan: ## Check project's runtime dependencies
+# 	@$(UV) run python scripts/scan-dependencies.py
+
 # ---------------------- Testing ---------------------- ### Run all service test suites
 
-.PHONY: test-agents
-test-agents: ## Run Agents tests
-	cd apps/agents && $(UV) run pytest tests
+.PHONY: test-asset-intel-service
+test-asset-intel-service: ## Run Asset Intelligence Service tests
+	cd apps/asset-intel-service && $(UV) run pytest tests
 
 # ---------------------- DeepEval ---------------------- #
 
-.PHONY: eval-agents
-eval-agents: ## Run Agents DeepEval evaluations
-	cd apps/agents && $(UV) run run deepeval test run tests/evals
+.PHONY: eval-asset-intel-service
+eval-asset-intel-service: ## Run Asset Intelligence Service DeepEval evaluations
+	cd apps/asset-intel-service && $(UV) run run deepeval test run tests/evals
 
 # ---------------------- Full Check ------------------- #
 
@@ -107,16 +115,16 @@ clean: ## Remove caches and build artifacts
 
 # ---------------------- Python Docker Apps ---------------------- #
 
-.PHONY: docker-build-agents
-docker-build-agents: ## Build the Agents Docker image
-	docker build -t $(PROJECT_NAME)-agents apps/agents
+.PHONY: docker-build-asset-intel-service
+docker-build-asset-intel-service: ## Build the Avli Asset Intelligence Docker image
+	docker build -t $(PROJECT_NAME)-asset-intel-service apps/asset-intel-service
 
 .PHONY: docker-build-celery
-docker-build-celery: ## Build the Celery Docker image
+docker-build-celery: ## Build the Avli Celery Docker image
 	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
 
 .PHONY: docker-build
-docker-build: docker-build-agents docker-build-celery ## Build all Docker images
+docker-build: docker-build-asset-intelligence docker-build-celery ## Build all Docker images
 
 .PHONY: docker-up
 docker-up: ## Start the development Docker Compose stack

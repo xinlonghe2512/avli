@@ -1,4 +1,4 @@
-"""Main application entry point of Agents"""
+"""Main application entry point of Asset Intelligence Service"""
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
