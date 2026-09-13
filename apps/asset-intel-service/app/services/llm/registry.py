@@ -3,6 +3,7 @@
 from typing import (
     TypedDict,
     Unpack,
+    cast,
 )
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -69,7 +70,7 @@ class LLMRegistry:
     def get(cls, model_name: str, **kwargs: Unpack[LLMOverrides]) -> BaseChatModel:
         """Get an LLM by name with optional argument overrides.
 
-        When kwargs are provided a fresh ChatOpenAI instance is returned with
+        When kwargs are provided a fresh ChatOpenRouter instance is returned with
         those overrides applied, leaving the shared registry entry untouched.
 
         Args:
@@ -87,31 +88,31 @@ class LLMRegistry:
             None,
         )
 
-        if model_entry is None:
+        if not model_entry:
             available = ", ".join(cls.get_all_names())
             raise ValueError(
                 f"model '{model_name}' not found in registry. "
                 f"available models: {available}"
             )
 
-        llm = model_entry["llm"]
-
-        if not kwargs:
+        if kwargs:
+            base_llm = cast(ChatOpenRouter, model_entry["llm"])
             logger.debug(
-                "using_default_llm_instance",
+                "creating_llm_with_custom_args",
                 model_name=model_name,
-                model=llm.__class__.__name__,
+                model=base_llm.__class__.__name__,
+                custom_args=list(kwargs.keys()),
             )
-            return llm
 
-        logger.debug(
-            "creating_llm_with_custom_args",
-            model_name=model_name,
-            model=llm.__class__.__name__,
-            custom_args=list(kwargs.keys()),
-        )
+            return ChatOpenRouter(
+                model=base_llm.model_name,
+                api_key=_API_KEY,
+                max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
+                **kwargs,
+            )
 
-        return llm.model_copy(update=dict(kwargs))
+        logger.debug("using_default_llm_instance", model_name=model_name)
+        return model_entry["llm"]
 
     @classmethod
     def get_all_names(cls) -> list[str]:
