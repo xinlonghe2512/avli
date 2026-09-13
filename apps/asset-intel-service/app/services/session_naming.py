@@ -26,9 +26,9 @@ from sqlmodel import (
     update,
 )
 
+from app.core.langgraph.prompts import SESSION_TITLE_PROMPT
 from app.core.logging import logger
 from app.core.metrics import session_names_generated_total
-from app.core.langgraph.prompts import SESSION_TITLE_PROMPT
 from app.models.session import Session as ChatSession
 from app.schemas.chat import Message, SessionTitle
 from app.services.database import database_service

@@ -1,6 +1,6 @@
 """Graph schema for the application."""
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 from langchain_core.messages import AnyMessage
 from langgraph.graph.message import add_messages
@@ -18,4 +18,15 @@ class GraphState(BaseModel):
     long_term_memory: str = Field(
         default="",
         description="The long term memory of the conversation",
+    )
+
+    next_agent: (
+        Literal[
+            "rag",
+            "research",
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="The next agent to execute",
     )

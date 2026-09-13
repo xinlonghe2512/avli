@@ -190,45 +190,36 @@ class Settings:
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
 
-        # LlamaIndex Configuration
-        self.LLAMAINDEX_LLM_PROVIDER = os.getenv(
-            "LLAMAINDEX_LLM_PROVIDER", "openrouter"
+        # Embedding Model Configuration
+        self.EMBEDDING_MODEL_PROVIDER = os.getenv(
+            "EMBEDDING_MODEL_PROVIDER",
+            "huggingface",
         )
-        self.LLAMAINDEX_LLM_MODEL = os.getenv(
-            "LLAMAINDEX_LLM_MODEL",
-            "deepseek/deepseek-v4-flash",
+        self.EMBEDDING_MODEL = os.getenv(
+            "EMBEDDING_MODEL",
+            "baai/bge-small-en-v1.5",
         )
-        self.LLAMAINDEX_LLM_TEMPERATURE = float(
-            os.getenv("LLAMAINDEX_LLM_TEMPERATURE", "0.2")
-        )
-        self.LLAMAINDEX_LLM_MAX_TOKENS = int(
-            os.getenv("LLAMAINDEX_LLM_MAX_TOKENS", "2000")
-        )
-        self.LLAMAINDEX_EMBEDDING_PROVIDER = os.getenv(
-            "LLAMAINDEX_EMBEDDING_PROVIDER",
-            "openrouter",
-        )
-        self.LLAMAINDEX_EMBEDDING_MODEL = os.getenv(
-            "LLAMAINDEX_EMBEDDING_MODEL",
-            "baai/bge-m3",
-        )
-        self.LLAMAINDEX_TOP_K = int(os.getenv("LLAMAINDEX_TOP_K", "5"))
-        self.LLAMAINDEX_VECTOR_STORE = os.getenv(
-            "LLAMAINDEX_VECTOR_STORE",
+
+        # Vectorstore Configuration
+        self.VECTORSTORE = os.getenv(
+            "VECTOR_STORE",
             "qdrant",
         )
-        self.VECTOR_STORE_URL = os.getenv(
-            "VECTORDB_URL",
+        self.VECTORSTORE_URL = os.getenv(
+            "VECTOR_STORE_URL",
             "http://localhost:6333",
         )
-        self.VECTOR_STORE_COLLECTION = os.getenv(
-            "VECTORDB_COLLECTION",
+        self.VECTORSTORE_API_KEY = os.getenv(
+            "VECTOR_STORE_API_KEY",
+            "http://localhost:6333",
+        )
+        self.VECTORSTORE_COLLECTION = os.getenv(
+            "VECTOR_STORE_COLLECTION",
             "documents",
         )
-        self.VECTOR_STORE_API_KEY = os.getenv("VECTOR_STORE_API_KEY", "")
-        self.VECTOR_STORE_CHUNK_SIZE = int(os.getenv("LLAMAINDEX_CHUNK_SIZE", "1024"))
-        self.VECTOR_STORE_CHUNK_OVERLAP = int(
-            os.getenv("LLAMAINDEX_CHUNK_OVERLAP", "200")
+        self.VECTORSTORE_CHUNK_SIZE = int(os.getenv("VECTOR_STORE_CHUNK_SIZE", "1024"))
+        self.VECTORSTORE_CHUNK_OVERLAP = int(
+            os.getenv("VECTOR_STORE_CHUNK_OVERLAP", "200")
         )
 
         # Long term memory Configuration
@@ -239,6 +230,7 @@ class Settings:
         self.LONG_TERM_MEMORY_COLLECTION_NAME = os.getenv(
             "LONG_TERM_MEMORY_COLLECTION_NAME", "longterm_memory"
         )
+
         # JWT Configuration
         self.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
         self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")

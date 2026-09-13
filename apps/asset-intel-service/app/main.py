@@ -17,7 +17,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 
 from app.api.v1.api import api_router
-from app.api.v1.routes.chatbot import agent
+from app.api.v1.routes.chatbot import workflow
 from app.core.cache import cache_service
 from app.core.config import settings
 from app.core.logging import logger, setup_logging
@@ -59,7 +59,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     # Pre-warm the LangGraph agent: create graph + connection pool at startup
     # to avoid cold-start latency on the first request
     try:
-        await agent.create_graph()
+        await workflow.create_graph()
         logger.info("graph_pre_warmed")
     except Exception as e:
         logger.exception("graph_pre_warm_failed", error=str(e))
@@ -75,8 +75,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
 
     # Cleanup on shutdown
     await cache_service.close()
-    if agent._connection_pool:
-        await agent._connection_pool.close()
+    if workflow._connection_pool:
+        await workflow._connection_pool.close()
         logger.info("connection_pool_closed")
     logger.info("application_shutdown")
 

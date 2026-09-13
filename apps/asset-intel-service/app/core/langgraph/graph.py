@@ -2,7 +2,7 @@
 
 import asyncio
 from collections.abc import AsyncGenerator
-from typing import Any, Literal, cast
+from typing import Any, cast
 from urllib.parse import quote_plus
 
 from langchain_core.callbacks import BaseCallbackHandler
@@ -10,7 +10,6 @@ from langchain_core.messages import (
     AIMessage,
     AIMessageChunk,
     BaseMessage,
-    ToolMessage,
     convert_to_openai_messages,
 )
 from langchain_core.runnables.config import RunnableConfig
@@ -18,6 +17,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.errors import GraphInterrupt
 from langgraph.graph import (
     END,
+    START,
     StateGraph,
 )
 from langgraph.graph.state import (
@@ -39,10 +39,10 @@ from psycopg.rows import (
 from psycopg_pool import AsyncConnectionPool
 
 from app.core.config import settings
-from app.core.langgraph.prompts import load_system_prompt
-from app.core.langgraph.tools import tools
+from app.core.langgraph.agents.rag import rag_node
+from app.core.langgraph.agents.research import research_node
+from app.core.langgraph.agents.supervisor import supervisor_node
 from app.core.logging import logger
-from app.core.metrics import llm_inference_duration_seconds
 from app.core.observability import langfuse_callback_handler
 from app.schemas.chat import Message
 from app.schemas.graph import GraphState
@@ -51,15 +51,22 @@ from app.services.memory import memory_service
 from app.utils import (
     convert_messages,
     extract_text_content,
-    prepare_messages,
-    process_llm_response,
 )
 
 PostgresConnPool = AsyncConnectionPool[AsyncConnection[DictRow]]
 
 
-class LangGraphAgent:
-    """Manages the LangGraph Agent/workflow and interactions with the LLM.
+def route_from_supervisor(state: GraphState) -> str:
+    """Route execution to the agent selected by the supervisor."""
+
+    if state.next_agent is None:
+        raise ValueError("Supervisor did not select an agent")
+
+    return state.next_agent
+
+
+class LangGraphWorkflow:
+    """Manages the LangGraph workflow and interactions with the LLM.
 
     This class handles the creation and management of the LangGraph workflow,
     including LLM interactions, database connections, and response processing.
@@ -67,10 +74,9 @@ class LangGraphAgent:
 
     def __init__(self) -> None:
         """Initialize the LangGraph Agent with necessary components."""
+
         # Use the LLM service with tools bound
         self.llm_service = llm_service
-        self.llm_service.bind_tools(tools)
-        self.tools_by_name = {tool.name: tool for tool in tools}
         self._connection_pool: PostgresConnPool | None = None
         self._graph: CompiledStateGraph[GraphState] | None = None
         logger.info(
@@ -128,119 +134,8 @@ class LangGraphAgent:
                 raise e
         return self._connection_pool
 
-    async def _chat(
-        self, state: GraphState, config: RunnableConfig
-    ) -> Command[Literal["tool_call", "__end__"]]:
-        """Process the chat state and generate a response.
-
-        Args:
-            state (GraphState): The current state of the conversation.
-            config (RunnableConfig): The runnable configuration for this invocation.
-
-        Returns:
-            Command: Command object with updated state and next node to execute.
-        """
-        # Get the current LLM instance for metrics
-        current_llm = self.llm_service.get_llm()
-        model_name = (
-            getattr(current_llm, "model_name", None)
-            or getattr(current_llm, "model", None)
-            or settings.LANGGRAPH_LLM_MODEL
-        )
-
-        username = config.get("metadata", {}).get("username")
-        thread_id = config.get("configurable", {}).get("thread_id")
-        SYSTEM_PROMPT = load_system_prompt(
-            username=username, long_term_memory=state.long_term_memory
-        )
-
-        # Prepare messages with system prompt
-        messages = prepare_messages(state.messages, SYSTEM_PROMPT)
-
-        try:
-            # Use LLM service with automatic retries and circular fallback
-            with llm_inference_duration_seconds.labels(model=model_name).time():
-                response_message = await self.llm_service.call(messages)
-
-            # Process response to handle structured content blocks
-            response_message = process_llm_response(response_message)
-
-            logger.info(
-                "llm_response_generated",
-                session_id=thread_id,
-                model=model_name,
-                environment=settings.ENVIRONMENT.value,
-            )
-
-            # Determine next node based on whether there are tool calls
-            goto: Literal["tool_call", "__end__"] = (
-                "tool_call"
-                if isinstance(response_message, AIMessage)
-                and bool(response_message.tool_calls)
-                else "__end__"
-            )
-
-            return Command[Literal["tool_call", "__end__"]](
-                update={"messages": [response_message]}, goto=goto
-            )
-        except Exception as e:
-            logger.error(
-                "llm_call_failed_all_models",
-                session_id=thread_id,
-                error=str(e),
-                environment=settings.ENVIRONMENT.value,
-            )
-            raise Exception(
-                f"failed to get llm response after trying all models: {str(e)}"
-            )
-
-    # Define our tool node
-    async def _tool_call(self, state: GraphState) -> Command[Literal["chat"]]:
-        """Process tool calls from the last message.
-
-        Args:
-            state: The current agent state containing messages and tool calls.
-
-        Returns:
-            Command: Command object with updated messages and routing back to chat.
-        """
-        last_message = state.messages[-1] if state.messages else None
-        tool_calls = getattr(last_message, "tool_calls", None) or []
-
-        async def _execute_tool(tool_call: dict[str, object]) -> ToolMessage:
-            tool_name = str(tool_call.get("name", ""))
-            call_id = str(tool_call.get("id", ""))
-            tool_args = tool_call.get("args")
-
-            tool = self.tools_by_name.get(tool_name)
-            if tool is None:
-                return ToolMessage(
-                    content=f"Tool execution failed: Tool '{tool_name}' not recognized.",
-                    name=tool_name or "unknown",
-                    tool_call_id=call_id,
-                )
-
-            try:
-                tool_result = await tool.ainvoke(
-                    tool_args if isinstance(tool_args, dict) else {}
-                )
-                content = str(tool_result)
-            except Exception as exc:
-                content = f"Tool execution failed: {exc}"
-
-            return ToolMessage(
-                content=content,
-                name=tool_call["name"],
-                tool_call_id=tool_call["id"],
-            )
-
-        # Execute tool calls concurrently when multiple are requested; exceptions are handled inside _execute_tool
-        outputs = list(await asyncio.gather(*[_execute_tool(tc) for tc in tool_calls]))
-
-        return Command[Literal["chat"]](update={"messages": outputs}, goto="chat")
-
     async def create_graph(self) -> CompiledStateGraph[GraphState]:
-        """Create and configure the LangGraph workflow.
+        """Create and configure the multi-agent LangGraph.
 
         Returns:
             CompiledStateGraph: The configured LangGraph instance, always with a checkpointer.
@@ -251,17 +146,46 @@ class LangGraphAgent:
         if self._graph is None:
             try:
                 graph_builder = StateGraph(GraphState)
+
                 graph_builder.add_node(
-                    "chat", self._chat, destinations=("tool_call", END)
+                    "supervisor",
+                    supervisor_node,
                 )
+
                 graph_builder.add_node(
-                    "tool_call",
-                    self._tool_call,
-                    destinations=("chat",),
-                    retry_policy=RetryPolicy(max_attempts=3),
+                    "rag", rag_node, retry_policy=RetryPolicy(max_attempts=3)
                 )
-                graph_builder.set_entry_point("chat")
-                graph_builder.set_finish_point("chat")
+
+                graph_builder.add_node(
+                    "research", research_node, retry_policy=RetryPolicy(max_attempts=3)
+                )
+
+                # START -> supervisor
+                graph_builder.add_edge(
+                    START,
+                    "supervisor",
+                )
+
+                # supervisor -> selected agent
+                graph_builder.add_conditional_edges(
+                    "supervisor",
+                    route_from_supervisor,
+                    {
+                        "rag": "rag",
+                        "research": "research",
+                    },
+                )
+
+                # Specialists -> END
+                graph_builder.add_edge(
+                    "rag",
+                    END,
+                )
+
+                graph_builder.add_edge(
+                    "research",
+                    END,
+                )
 
                 # Raises if the pool cannot be created — no checkpointer, no service.
                 connection_pool = await self._get_connection_pool()
@@ -270,12 +194,12 @@ class LangGraphAgent:
 
                 self._graph = graph_builder.compile(
                     checkpointer=checkpointer,
-                    name=f"{settings.PROJECT_NAME} Agent ({settings.ENVIRONMENT.value})",
+                    name=f"{settings.PROJECT_NAME} Multi-Agent ({settings.ENVIRONMENT.value})",
                 )
 
                 logger.info(
-                    "graph_created",
-                    graph_name=f"{settings.PROJECT_NAME} Agent",
+                    "multi_agent_graph_created",
+                    graph_name=f"{settings.PROJECT_NAME} Multi-Agent",
                     environment=settings.ENVIRONMENT.value,
                     has_checkpointer=checkpointer is not None,
                 )

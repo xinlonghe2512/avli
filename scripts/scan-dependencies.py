@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# For Python: #!/usr/bin/env python3
 
 from __future__ import annotations
 
@@ -37,21 +37,20 @@ def extract_packages(data: Any) -> set[str]:
             for key in ("package", "package_name", "name"):
                 package = value.get(key)
 
-                if isinstance(package, str):
-                    # Only treat it as a package when this object looks
-                    # vulnerability-related.
-                    if any(
-                        key in value
-                        for key in (
-                            "id",
-                            "advisory",
-                            "vulnerability",
-                            "severity",
-                            "aliases",
-                            "affected",
-                        )
-                    ):
-                        packages.add(package)
+                # Only treat it as a package when this object looks
+                # vulnerability-related.
+                if isinstance(package, str) and any(
+                    key in value
+                    for key in (
+                        "id",
+                        "advisory",
+                        "vulnerability",
+                        "severity",
+                        "aliases",
+                        "affected",
+                    )
+                ):
+                    packages.add(package)
 
             for child in value.values():
                 visit(child)

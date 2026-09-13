@@ -17,7 +17,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from app.api.v1.routes.auth import get_current_session
 from app.core.config import settings
-from app.core.langgraph.graph import LangGraphAgent
+from app.core.langgraph.graph import LangGraphWorkflow
 from app.core.logging import logger
 from app.core.metrics import llm_stream_duration_seconds
 from app.models.session import Session
@@ -29,7 +29,7 @@ from app.schemas.chat import (
 from app.services.session_naming import maybe_name_session
 
 router = APIRouter()
-agent = LangGraphAgent()
+workflow = LangGraphWorkflow()
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -61,7 +61,7 @@ async def chat(
         if settings.SESSION_NAMING_ENABLED:
             maybe_name_session(session.id, session.name, chat_request.messages)
 
-        result = await agent.get_response(
+        result = await workflow.get_response(
             chat_request.messages,
             session.id,
             user_id=str(session.user_id),
@@ -116,9 +116,9 @@ async def chat_stream(
             """
             try:
                 with llm_stream_duration_seconds.labels(
-                    model=agent.llm_service.get_llm().get_name()
+                    model=workflow.llm_service.get_llm().get_name()
                 ).time():
-                    async for chunk in agent.get_stream_response(
+                    async for chunk in workflow.get_stream_response(
                         chat_request.messages,
                         session.id,
                         user_id=str(session.user_id),
@@ -176,7 +176,7 @@ async def get_session_messages(
         HTTPException: If there's an error retrieving the messages.
     """
     try:
-        messages = await agent.get_chat_history(session.id)
+        messages = await workflow.get_chat_history(session.id)
         return ChatResponse(messages=messages)
     except Exception as e:
         logger.exception("get_messages_failed", session_id=session.id, error=str(e))
@@ -198,7 +198,7 @@ async def clear_chat_history(
         dict: A message indicating the chat history was cleared.
     """
     try:
-        await agent.clear_chat_history(session.id)
+        await workflow.clear_chat_history(session.id)
         return JSONResponse(content={"message": "Chat history cleared successfully"})
     except Exception as e:
         logger.exception(
