@@ -39,9 +39,11 @@ from psycopg.rows import (
 from psycopg_pool import AsyncConnectionPool
 
 from app.core.config import settings
-from app.core.langgraph.agents.rag import rag_node
-from app.core.langgraph.agents.research import research_node
-from app.core.langgraph.agents.supervisor import supervisor_node
+from app.core.langgraph.agents import (
+    RagAgent,
+    ResearchAgent,
+    SupervisorAgent,
+)
 from app.core.logging import logger
 from app.core.observability import langfuse_callback_handler
 from app.schemas.chat import Message
@@ -143,21 +145,33 @@ class LangGraphWorkflow:
         Raises:
             Exception: If the graph cannot be built, in every environment.
         """
+        supervisor_agent = SupervisorAgent(
+            llm_service=self.llm_service,
+        )
+
+        research_agent = ResearchAgent(
+            llm_service=self.llm_service,
+        )
+
+        rag_agent = RagAgent(
+            llm_service=self.llm_service,
+        )
+
         if self._graph is None:
             try:
                 graph_builder = StateGraph(GraphState)
 
                 graph_builder.add_node(
                     "supervisor",
-                    supervisor_node,
+                    supervisor_agent,
                 )
 
                 graph_builder.add_node(
-                    "rag", rag_node, retry_policy=RetryPolicy(max_attempts=3)
+                    "rag", rag_agent, retry_policy=RetryPolicy(max_attempts=3)
                 )
 
                 graph_builder.add_node(
-                    "research", research_node, retry_policy=RetryPolicy(max_attempts=3)
+                    "research", research_agent, retry_policy=RetryPolicy(max_attempts=3)
                 )
 
                 # START -> supervisor

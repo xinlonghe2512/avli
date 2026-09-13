@@ -13,7 +13,7 @@ TOP_K = 5
 
 
 @tool
-async def rag_search(query: str) -> str:
+async def vector_search(query: str) -> str:
     """Search the knowledge base for information relevant to the query."""
 
     try:

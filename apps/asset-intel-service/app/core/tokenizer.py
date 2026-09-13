@@ -1,4 +1,4 @@
-"""Tokenization utilities for LLM context management."""
+"""Tokenization for LLM context management."""
 
 from collections.abc import Sequence
 from typing import Any, Protocol
