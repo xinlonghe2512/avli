@@ -1,5 +1,6 @@
+""" """
+
 from langchain_core.messages import AIMessage, SystemMessage
-from langchain_core.runnables import RunnableConfig
 
 from app.core.langgraph.tools import rag_search
 from app.schemas.graph import GraphState
@@ -25,7 +26,6 @@ Rules:
 
 async def rag_node(
     state: GraphState,
-    _config: RunnableConfig,
 ) -> dict[str, object]:
     """Answer the user's question using the knowledge base."""
 

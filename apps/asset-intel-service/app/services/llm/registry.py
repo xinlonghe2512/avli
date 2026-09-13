@@ -12,7 +12,7 @@ from pydantic import SecretStr
 from app.core.config import settings
 from app.core.logging import logger
 
-_API_KEY = SecretStr(settings.LANGGRAPH_API_KEY)
+_API_KEY = SecretStr(settings.LLM_PROVIDER_API_KEY)
 
 # Every model here is a reasoning model, and the API rejects the classic sampling
 # knobs (`top_p`, `presence_penalty`, `frequency_penalty`) with a 400 once
@@ -50,7 +50,7 @@ class LLMRegistry:
             "llm": ChatOpenRouter(
                 model="~deepseek/deepseek-v4-flash-latest",
                 api_key=_API_KEY,
-                max_completion_tokens=settings.LANGGRAPH_LLM_MAX_TOKENS,
+                max_completion_tokens=settings.LLM_MAX_TOKENS,
                 reasoning={"effort": "medium"},
             ),
         },
@@ -59,7 +59,7 @@ class LLMRegistry:
             "llm": ChatOpenRouter(
                 model="deepseek/deepseek-v4-flash",
                 api_key=_API_KEY,
-                max_completion_tokens=settings.LANGGRAPH_LLM_MAX_TOKENS,
+                max_completion_tokens=settings.LLM_MAX_TOKENS,
                 reasoning={"effort": "medium"},
             ),
         },

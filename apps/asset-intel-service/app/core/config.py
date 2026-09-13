@@ -167,25 +167,15 @@ class Settings:
         self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
         # LangGraph Configuration
-        self.LANGGRAPH_API_KEY = os.getenv("LANGGRAPH_API_KEY", "")
-        self.LANGGRAPH_BASE_URL = os.getenv(
-            "LANGGRAPH_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
+        self.LLM_PROVIDER_API_KEY = os.getenv("LLM_PROVIDER_API_KEY", "")
+        self.LLM_PROVIDER_BASE_URL = os.getenv(
+            "LLM_PROVIDER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
         )
-        self.LANGGRAPH_LLM_MODEL = os.getenv(
-            "LANGGRAPH_LLM_MODEL", "deepseek/deepseek-v4-flash"
-        )
-        self.LANGGRAPH_LLM_TEMPERATURE = float(
-            os.getenv("LANGGRAPH_LLM_TEMPERATURE", "0.2")
-        )
-        self.LANGGRAPH_LLM_MAX_TOKENS = int(
-            os.getenv("LANGGRAPH_LLM_MAX_TOKENS", "2000")
-        )
-        self.LANGGRAPH_LLM_MAX_CALL_RETRIES = int(
-            os.getenv("LANGGRAPH_LLM_MAX_CALL_RETRIES", "3")
-        )
-        self.LANGGRAPH_LLM_TOTAL_TIMEOUT = int(
-            os.getenv("LANGGRAPH_LLM_TOTAL_TIMEOUT", "60")
-        )
+        self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
+        self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+        self.LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
+        self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", "3"))
+        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
         self.SESSION_NAMING_ENABLED = (
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
@@ -302,7 +292,7 @@ class Settings:
             "EVALUATION_BASE_URL", "https://api.openai.com/v1"
         )
         self.EVALUATION_API_KEY = os.getenv(
-            "EVALUATION_API_KEY", self.LANGGRAPH_API_KEY
+            "EVALUATION_API_KEY", self.LLM_PROVIDER_API_KEY
         )
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
 

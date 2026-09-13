@@ -1,7 +1,6 @@
-"""Human-in-the-loop confirmation tool for LangGraph.
+"""Human-in-the-loop (HITL) confirmation tool for LangGraph.
 
-A tool that pauses graph execution to ask the user
-for confirmation before proceeding with a sensitive action.
+A tool that pauses graph execution to ask the user for confirmation before proceeding with a sensitive action.
 """
 
 from langchain_core.tools import tool

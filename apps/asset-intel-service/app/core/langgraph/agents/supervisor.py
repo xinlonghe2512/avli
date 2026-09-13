@@ -1,7 +1,8 @@
+""" """
+
 from typing import Literal
 
 from langchain_core.messages import SystemMessage
-from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
 from app.schemas.graph import GraphState
@@ -44,7 +45,6 @@ Do not answer the user's question yourself.
 
 async def supervisor_node(
     state: GraphState,
-    _config: RunnableConfig,
 ) -> dict[str, str]:
     """Route the current request to the appropriate specialist agent."""
 

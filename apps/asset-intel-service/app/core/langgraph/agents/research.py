@@ -1,5 +1,6 @@
+""" """
+
 from langchain_core.messages import AIMessage, SystemMessage
-from langchain_core.runnables import RunnableConfig
 
 from app.core.langgraph.tools import web_search
 from app.schemas.graph import GraphState
@@ -22,7 +23,6 @@ Rules:
 
 async def research_node(
     state: GraphState,
-    _config: RunnableConfig,
 ) -> dict[str, object]:
     """Research the user's question using web search."""
 

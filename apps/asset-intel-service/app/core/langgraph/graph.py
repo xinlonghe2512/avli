@@ -81,7 +81,7 @@ class LangGraphWorkflow:
         self._graph: CompiledStateGraph[GraphState] | None = None
         logger.info(
             "langgraph_agent_initialized",
-            model=settings.LANGGRAPH_LLM_MODEL,
+            model=settings.LLM_MODEL,
             environment=settings.ENVIRONMENT.value,
         )
 
