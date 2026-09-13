@@ -50,7 +50,7 @@ class LLMRegistry:
             "llm": ChatOpenRouter(
                 model="~deepseek/deepseek-v4-flash-latest",
                 api_key=_API_KEY,
-                max_completion_tokens=settings.LLM_MAX_TOKENS,
+                max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
                 reasoning={"effort": "medium"},
             ),
         },
@@ -59,7 +59,7 @@ class LLMRegistry:
             "llm": ChatOpenRouter(
                 model="deepseek/deepseek-v4-flash",
                 api_key=_API_KEY,
-                max_completion_tokens=settings.LLM_MAX_TOKENS,
+                max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
                 reasoning={"effort": "medium"},
             ),
         },

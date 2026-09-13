@@ -6,18 +6,19 @@ from app.core.langgraph.tools import web_search
 from app.schemas.graph import GraphState
 from app.services.llm import llm_service
 
-RESEARCH_SYSTEM_PROMPT = """\
+RESEARCH_SYSTEM_MESSAGE = """\
+# Role
 You are a research assistant.
 
+# Job
 Answer the user's question using the web search results provided below.
 
-Rules:
-
-1. Prefer information supported by the search results.
-2. Do not fabricate sources or facts.
-3. If the search results are insufficient or conflicting, say so.
-4. Clearly distinguish known information from uncertainty.
-5. Provide a concise synthesis rather than simply copying search results.
+# Instructions
+- Prefer information supported by the search results.
+- Do not fabricate sources or facts.
+- If the search results are insufficient or conflicting, say so.
+- Clearly distinguish known information from uncertainty.
+- Provide a concise synthesis rather than simply copying search results.
 """
 
 
@@ -33,7 +34,7 @@ async def research_node(
     search_results = await web_search.ainvoke(query)
 
     prompt = f"""\
-{RESEARCH_SYSTEM_PROMPT}
+{RESEARCH_SYSTEM_MESSAGE}
 
 Web search results:
 

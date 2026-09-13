@@ -1,9 +1,8 @@
-"""Graph utilities for the application."""
+"""Message/context management utilities for the application."""
 
 from collections.abc import Sequence
 from typing import Any, cast
 
-import tiktoken
 from langchain_core.messages import (
     AIMessage,
     AnyMessage,
@@ -15,6 +14,7 @@ from langchain_core.messages import trim_messages as _trim_messages
 
 from app.core.config import settings
 from app.core.logging import logger
+from app.core.tokenizer import deepseek_tokenizer
 from app.schemas import Message
 
 MessageInput = (
@@ -24,36 +24,6 @@ MessageInput = (
     | str
     | dict[str, Any]
 )
-
-# Cache tiktoken encoding at module level — thread-safe and reusable
-try:
-    _TIKTOKEN_ENCODING = tiktoken.encoding_for_model(settings.LLM_MODEL)
-except KeyError:
-    _TIKTOKEN_ENCODING = tiktoken.get_encoding("cl100k_base")
-
-
-def _count_tokens_tiktoken(messages: Sequence[MessageInput]) -> int:
-    """Count tokens locally using tiktoken — no API call needed."""
-    num_tokens = 0
-    for message in messages:
-        # Every message has overhead tokens for role/name
-        num_tokens += 4
-        if isinstance(message, dict):
-            for _, value in message.items():
-                if isinstance(value, str):
-                    num_tokens += len(_TIKTOKEN_ENCODING.encode(value))
-        elif isinstance(message, BaseMessage):
-            content = message.content
-            if isinstance(content, str):
-                num_tokens += len(_TIKTOKEN_ENCODING.encode(content))
-            elif isinstance(content, list):
-                for block in content:
-                    if isinstance(block, str):
-                        num_tokens += len(_TIKTOKEN_ENCODING.encode(block))
-                    elif isinstance(block, dict) and "text" in block:
-                        num_tokens += len(_TIKTOKEN_ENCODING.encode(block["text"]))
-    num_tokens += 2  # every reply is primed with assistant
-    return num_tokens
 
 
 def convert_messages(
@@ -149,8 +119,8 @@ def prepare_messages(
         trimmed_messages = _trim_messages(
             list(messages),
             strategy="last",
-            token_counter=_count_tokens_tiktoken,
-            max_tokens=settings.LLM_MAX_TOKENS,
+            token_counter=deepseek_tokenizer.count_tokens,
+            max_tokens=settings.LLM_CONTEXT_BUDGET,
             start_on="human",
             include_system=False,
             allow_partial=False,

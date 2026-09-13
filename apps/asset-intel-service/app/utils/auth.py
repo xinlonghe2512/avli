@@ -15,7 +15,7 @@ from jose import (
 from app.core.config import settings
 from app.core.logging import logger
 from app.schemas.auth import Token
-from app.utils.santize import sanitize_string
+from app.utils.santizer import sanitize_string
 
 
 def create_access_token(

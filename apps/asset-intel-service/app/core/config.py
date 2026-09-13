@@ -175,7 +175,7 @@ class Settings:
         # Large Language Model Configuration
         self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
         self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
-        self.LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
+        self.LLM_CONTEXT_BUDGET = int(os.getenv("LLM_CONTEXT_BUDGET", "2000"))
         self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", "3"))
         self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
         self.SESSION_NAMING_ENABLED = (

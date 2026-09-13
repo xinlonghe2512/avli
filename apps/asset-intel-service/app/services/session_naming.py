@@ -26,7 +26,6 @@ from sqlmodel import (
     update,
 )
 
-from app.core.langgraph.prompts import SESSION_TITLE_PROMPT
 from app.core.logging import logger
 from app.core.metrics import session_names_generated_total
 from app.models.session import Session as ChatSession
@@ -35,6 +34,19 @@ from app.services.database import database_service
 from app.services.llm import llm_service
 
 _PLACEHOLDER_MAX = 40
+_SESSION_TITLE_PROMPT = """
+Generate a short title for a conversation based on the user's first message.
+
+Rules:
+
+- 3 to 6 words maximum
+- Match the language of the user's message
+- No quotes, no trailing punctuation, no prefixes like "Title:" or "Subject:"
+- Capture the specific topic, not a generic description
+
+User message:
+"""
+
 
 _background_tasks: set[asyncio.Task[None]] = set()
 
@@ -65,7 +77,7 @@ async def _persist_session_name(session_id: str, user_message: str) -> None:
     try:
         result = await llm_service.call(
             [
-                SystemMessage(content=SESSION_TITLE_PROMPT),
+                SystemMessage(content=_SESSION_TITLE_PROMPT),
                 HumanMessage(content=user_message[:500]),
             ],
             model_name="deepseek/deepseek-v4-flash",

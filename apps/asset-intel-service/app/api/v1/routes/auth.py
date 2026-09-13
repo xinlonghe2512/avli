@@ -35,7 +35,7 @@ from app.utils.auth import (
     create_access_token,
     verify_token,
 )
-from app.utils.santize import (
+from app.utils.santizer import (
     sanitize_email,
     sanitize_string,
     validate_password_strength,

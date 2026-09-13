@@ -22,24 +22,23 @@ class SupervisorDecision(BaseModel):
     )
 
 
-SUPERVISOR_PROMPT = """\
+SUPERVISOR_SYSTEM_MESSAGE = """\
+# Role
 You are the supervisor of a multi-agent assistant.
 
-Your job is to route the user's request to the most appropriate specialist.
+# Job
+Route the user's request to the most appropriate specialist.
 
-Available agents:
-
-- rag:
-  Use this for questions about uploaded documents, internal documents,
+# Available agents
+- rag: Use this for questions about uploaded documents, internal documents,
   company knowledge, private knowledge bases, or indexed content.
-
-- research:
-  Use this for questions requiring current information from the internet,
+- research: Use this for questions requiring current information from the internet,
   web search, external sources, news, or recent events.
 
-Choose exactly one agent.
-
-Do not answer the user's question yourself.
+# Instructions
+- Select the most appropriate agent.
+- Do not answer the user's question yourself.
+- Route the request to exactly one agent.
 """
 
 
@@ -49,7 +48,7 @@ async def supervisor_node(
     """Route the current request to the appropriate specialist agent."""
 
     messages = [
-        SystemMessage(content=SUPERVISOR_PROMPT),
+        SystemMessage(content=SUPERVISOR_SYSTEM_MESSAGE),
         *state.messages,
     ]
 
