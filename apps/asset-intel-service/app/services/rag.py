@@ -2,15 +2,15 @@
 
 from llama_index.core import StorageContext, VectorStoreIndex
 from llama_index.core.base.base_retriever import BaseRetriever
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
 from app.core.config import settings
 
 
-class VectorStoreService:
-    """Manage the LlamaIndex knowledge base."""
+class RAGService:
+    """Service for managing knowledge base using LlamaIndex and Qdrant."""
 
     def __init__(self) -> None:
         self._client = self._create_qdrant_client()
@@ -25,11 +25,13 @@ class VectorStoreService:
             api_key=settings.VECTORSTORE_API_KEY,
         )
 
-    def _create_embedding_model(self) -> HuggingFaceEmbedding:
+    def _create_embedding_model(self) -> OpenAIEmbedding:
         """Create the embedding model."""
 
-        return HuggingFaceEmbedding(
+        return OpenAIEmbedding(
             model=settings.EMBEDDING_MODEL,
+            api_key=settings.MODEL_PROVIDER_API_KEY,
+            api_base=settings.MODEL_PROVIDER_API_BASE,
         )
 
     def _create_index(self) -> VectorStoreIndex:
@@ -61,4 +63,4 @@ class VectorStoreService:
         )
 
 
-vectorstore_service = VectorStoreService()
+rag_service = RAGService()

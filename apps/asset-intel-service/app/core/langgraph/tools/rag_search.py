@@ -7,7 +7,7 @@ It returns up to top 5 search results and handles errors gracefully.
 
 from langchain_core.tools import tool
 
-from app.core.vectorstore import vectorstore_service
+from app.services.rag import rag_service
 
 TOP_K = 5
 
@@ -17,7 +17,7 @@ async def rag_search(query: str) -> str:
     """Search the knowledge base for information relevant to the query."""
 
     try:
-        retriever = vectorstore_service.get_retriever(TOP_K)
+        retriever = rag_service.get_retriever(TOP_K)
         results = await retriever.aretrieve(query)
 
         if not results:

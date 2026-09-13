@@ -40,8 +40,6 @@ class MemoryService:
                             "provider": "openai",
                             "config": {
                                 "model": settings.LONG_TERM_MEMORY_MODEL,
-                                "openai_base_url": settings.LLM_PROVIDER_BASE_URL,
-                                "api_key": settings.LLM_PROVIDER_API_KEY,
                             },
                         },
                         "embedder": {

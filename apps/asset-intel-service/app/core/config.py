@@ -166,11 +166,13 @@ class Settings:
         self.LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
         self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
-        # Large Language Model Configuration
-        self.LLM_PROVIDER_API_KEY = os.getenv("LLM_PROVIDER_API_KEY", "")
-        self.LLM_PROVIDER_BASE_URL = os.getenv(
-            "LLM_PROVIDER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
+        # Model Provider Configuration
+        self.MODEL_PROVIDER_API_KEY = os.getenv("MODEL_PROVIDER_API_KEY", "")
+        self.MODEL_PROVIDER_API_BASE = os.getenv(
+            "MODEL_PROVIDER_API_BASE", "https://openrouter.ai/api/v1/chat/completions"
         )
+
+        # Large Language Model Configuration
         self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
         self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
         self.LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
@@ -185,11 +187,11 @@ class Settings:
             "LONG_TERM_MEMORY_MODEL", "deepseek/deepseek-v4-flash"
         )
         self.LONG_TERM_MEMORY_EMBEDDING_MODEL = os.getenv(
-            "LONG_TERM_MEMORY_EMBEDDER_MODEL", "text-embedding-3-small"
+            "LONG_TERM_MEMORY_EMBEDDER_MODEL", "baai/bge-m3"
         )
         self.LONG_TERM_MEMORY_EMBEDDING_MODEL_PATH = os.getenv(
             "LONG_TERM_MEMORY_EMBEDDING_MODEL_PATH",
-            "./embedding-models/text-embedding-3-small",
+            "./embedding-models/baai/bge-m3",
         )
         self.LONG_TERM_MEMORY_COLLECTION_NAME = os.getenv(
             "LONG_TERM_MEMORY_COLLECTION_NAME", "longterm_memory"
@@ -198,25 +200,21 @@ class Settings:
         # Embedding Model Configuration
         self.EMBEDDING_MODEL = os.getenv(
             "EMBEDDING_MODEL",
-            "baai/bge-small-en-v1.5",
+            "baai/bge-m3",
         )
         self.EMBEDDING_MODEL_PATH = os.getenv(
             "EMBEDDING_MODEL_PATH",
-            "./embedding-models/bge-small-en-v1.5",
+            "./embedding-models/baai/bge-m3",
         )
 
         # Vectorstore Configuration
-        self.VECTORSTORE = os.getenv(
-            "VECTORSTORE",
-            "qdrant",
-        )
         self.VECTORSTORE_URL = os.getenv(
             "VECTORSTORE_URL",
             "http://localhost:6333",
         )
         self.VECTORSTORE_API_KEY = os.getenv(
             "VECTORSTORE_API_KEY",
-            "http://localhost:6333",
+            "",
         )
         self.VECTORSTORE_COLLECTION_NAME = os.getenv(
             "VECTOR_STORE_COLLECTION_NAME",
@@ -298,7 +296,7 @@ class Settings:
             "EVALUATION_BASE_URL", "https://api.openai.com/v1"
         )
         self.EVALUATION_API_KEY = os.getenv(
-            "EVALUATION_API_KEY", self.LLM_PROVIDER_API_KEY
+            "EVALUATION_API_KEY", self.MODEL_PROVIDER_API_KEY
         )
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
 

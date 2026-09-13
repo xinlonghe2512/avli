@@ -12,7 +12,7 @@ from pydantic import SecretStr
 from app.core.config import settings
 from app.core.logging import logger
 
-_API_KEY = SecretStr(settings.LLM_PROVIDER_API_KEY)
+_API_KEY = SecretStr(settings.MODEL_PROVIDER_API_KEY)
 
 # Every model here is a reasoning model, and the API rejects the classic sampling
 # knobs (`top_p`, `presence_penalty`, `frequency_penalty`) with a 400 once
