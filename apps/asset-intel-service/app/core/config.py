@@ -166,7 +166,7 @@ class Settings:
         self.LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
         self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
-        # LangGraph Configuration
+        # Large Language Model Configuration
         self.LLM_PROVIDER_API_KEY = os.getenv("LLM_PROVIDER_API_KEY", "")
         self.LLM_PROVIDER_BASE_URL = os.getenv(
             "LLM_PROVIDER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
@@ -180,45 +180,51 @@ class Settings:
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
 
-        # Embedding Model Configuration
-        self.EMBEDDING_MODEL_PROVIDER = os.getenv(
-            "EMBEDDING_MODEL_PROVIDER",
-            "huggingface",
+        # Long Term Memory Configuration
+        self.LONG_TERM_MEMORY_MODEL = os.getenv(
+            "LONG_TERM_MEMORY_MODEL", "deepseek/deepseek-v4-flash"
         )
+        self.LONG_TERM_MEMORY_EMBEDDING_MODEL = os.getenv(
+            "LONG_TERM_MEMORY_EMBEDDER_MODEL", "text-embedding-3-small"
+        )
+        self.LONG_TERM_MEMORY_EMBEDDING_MODEL_PATH = os.getenv(
+            "LONG_TERM_MEMORY_EMBEDDING_MODEL_PATH",
+            "./embedding-models/text-embedding-3-small",
+        )
+        self.LONG_TERM_MEMORY_COLLECTION_NAME = os.getenv(
+            "LONG_TERM_MEMORY_COLLECTION_NAME", "longterm_memory"
+        )
+
+        # Embedding Model Configuration
         self.EMBEDDING_MODEL = os.getenv(
             "EMBEDDING_MODEL",
             "baai/bge-small-en-v1.5",
         )
+        self.EMBEDDING_MODEL_PATH = os.getenv(
+            "EMBEDDING_MODEL_PATH",
+            "./embedding-models/bge-small-en-v1.5",
+        )
 
         # Vectorstore Configuration
         self.VECTORSTORE = os.getenv(
-            "VECTOR_STORE",
+            "VECTORSTORE",
             "qdrant",
         )
         self.VECTORSTORE_URL = os.getenv(
-            "VECTOR_STORE_URL",
+            "VECTORSTORE_URL",
             "http://localhost:6333",
         )
         self.VECTORSTORE_API_KEY = os.getenv(
-            "VECTOR_STORE_API_KEY",
+            "VECTORSTORE_API_KEY",
             "http://localhost:6333",
         )
-        self.VECTORSTORE_COLLECTION = os.getenv(
-            "VECTOR_STORE_COLLECTION",
+        self.VECTORSTORE_COLLECTION_NAME = os.getenv(
+            "VECTOR_STORE_COLLECTION_NAME",
             "documents",
         )
-        self.VECTORSTORE_CHUNK_SIZE = int(os.getenv("VECTOR_STORE_CHUNK_SIZE", "1024"))
+        self.VECTORSTORE_CHUNK_SIZE = int(os.getenv("VECTORSTORE_CHUNK_SIZE", "1024"))
         self.VECTORSTORE_CHUNK_OVERLAP = int(
-            os.getenv("VECTOR_STORE_CHUNK_OVERLAP", "200")
-        )
-
-        # Long term memory Configuration
-        self.LONG_TERM_MEMORY_MODEL = os.getenv("LONG_TERM_MEMORY_MODEL", "gpt-5")
-        self.LONG_TERM_MEMORY_EMBEDDER_MODEL = os.getenv(
-            "LONG_TERM_MEMORY_EMBEDDER_MODEL", "text-embedding-3-small"
-        )
-        self.LONG_TERM_MEMORY_COLLECTION_NAME = os.getenv(
-            "LONG_TERM_MEMORY_COLLECTION_NAME", "longterm_memory"
+            os.getenv("VECTORSTORE_CHUNK_OVERLAP", "200")
         )
 
         # JWT Configuration
@@ -287,7 +293,7 @@ class Settings:
                 self.RATE_LIMIT_ENDPOINTS[endpoint] = value
 
         # Evaluation Configuration
-        self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "gpt-5")
+        self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "deepseek/deepseek-v4-flash")
         self.EVALUATION_BASE_URL = os.getenv(
             "EVALUATION_BASE_URL", "https://api.openai.com/v1"
         )

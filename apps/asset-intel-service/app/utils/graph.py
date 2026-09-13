@@ -80,7 +80,7 @@ def extract_text_content(
     """Extract plain text from an LLM content value.
 
     Handles both the simple string format and the structured block list
-    returned by GPT-5 / Responses API models.
+    returned by Responses API models.
 
     Args:
         content: Raw content from a LangChain BaseMessage.
@@ -159,7 +159,7 @@ def prepare_messages(
         trimmed_messages = cast(list[AnyMessage], trimmed_messages)
 
     except ValueError as e:
-        # Handle unrecognized content blocks (e.g., reasoning blocks from GPT-5).
+        # Handle unrecognized content blocks (e.g., reasoning blocks from Response API Models).
         if "Unrecognized content block type" in str(e):
             logger.warning(
                 "token_counting_failed_skipping_trim",

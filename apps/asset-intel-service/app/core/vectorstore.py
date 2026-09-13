@@ -37,7 +37,7 @@ class VectorStoreService:
 
         vector_store = QdrantVectorStore(
             client=self._client,
-            collection_name=settings.VECTORSTORE_COLLECTION,
+            collection_name=settings.VECTORSTORE_COLLECTION_NAME,
         )
 
         storage_context = StorageContext.from_defaults(
