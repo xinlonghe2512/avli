@@ -15,21 +15,21 @@ graph TB
         subgraph app[" "]
             direction TB
 
-            web["web\n(sveltekit, 5173)"]
+            sveltekit["sveltekit\n(web application, 5173)"]
             fastapi["fastapi\n(asset-intel-service, 8000)"]
 
-            subgraph app_data[" "]
+            subgraph app-data[" "]
                 direction LR
-                db["db<br/>(postgres + pgvector, 5432)"]
-                knowledge_base["knowledge_base<br/>(qdrant, 6333)"]
-                cache["cache<br/>(valkey, 6379)"]
+                postgres+pgvector["postgres + pgvector<br/>(sql & memory, 5432)"]
+                qdrant["qdrant<br/>(knowledge base, 6333)"]
+                valkey["valkey<br/>(cache, 6379)"]
             end
 
-            web --> fastapi
+            sveltekit --> fastapi
 
-            fastapi --> db
-            fastapi --> knowledge_base
-            fastapi -.->|"optional<br/>CACHE_HOST=valkey"| cache
+            fastapi --> postgres+pgvector
+            fastapi --> qdrant
+            fastapi -.->|"optional<br/>CACHE_HOST=valkey"| valkey
         end
 
         %% =========================================================
@@ -40,13 +40,13 @@ graph TB
 
             grafana["grafana\n(dashboard, 3000)"]
 
-            subgraph metric[" "]
+            subgraph obs-metric[" "]
                 direction LR
                 prometheus["prometheus\n(metric aggregation, 9090)"]
                 cadvisor["cadvisor\n(container metric, 8080)"]
             end
 
-            subgraph logging[" "]
+            subgraph obs-logging[" "]
                 direction LR
                 loki["loki<br/>(log aggregation, 3100)"]
                 alloy["alloy<br/>(log collector, 12345)"]
@@ -65,21 +65,26 @@ graph TB
             direction TB
 
             langfuse-web["langfuse-web\n(dashboard, 3000)"]
-            langfuse-worker["langfuse-worker\n(worker-node, 3030)"]
-            clickhouse["clickhouse\n(warehouse, 8123 | 9000)"]
 
-            subgraph data[" "]
+            subgraph obs_ai-data[" "]
                 direction LR
-                minio["minio<br/>(s3, 9090 | 9091)"]
-                redis["redis<br/>(cache, 6379)"]
-                postgres["postgres<br/>(sql-db, 5432)"]
+                clickhouse["clickhouse\n(analytics, 8123 | 9000)"]
+                redis["redis<br/>(queues, 6379)"]
+                postgres["postgres<br/>(metadata, 5432)"]
             end
 
-            langfuse-web --> langfuse-worker
-            langfuse-worker -->clickhouse
-            clickhouse --> minio
-            clickhouse --> redis
-            clickhouse --> postgres
+            langfuse-worker["langfuse-worker\n(async bg process, 3030)"]
+
+            subgraph obs_ai-data2[" "]
+                direction LR
+                minio["minio<br/>(object, 9090 | 9091)"]
+            end
+
+            langfuse-web --> clickhouse
+            langfuse-web --> redis
+            langfuse-web --> postgres
+            redis --> langfuse-worker
+            langfuse-worker --> minio
         end
     end
 
@@ -87,20 +92,20 @@ graph TB
     %% CROSS-STACK CONNECTIONS
     %% =========================================================
 
-    prometheus -->|"scrapes /metrics"| fastapi
+    prometheus -->|"scrapes metrics"| fastapi
     alloy -->|"scrapes logs"| fastapi
-    fastapi -->|"send metrics"| langfuse-worker
+    fastapi -->|"send agent execution<br>telemetry"| langfuse-web
 
     %% =========================================================
     %% STYLING
     %% =========================================================
-    class web application
+    class sveltekit application
     class fastapi microservice
-    class db,knowledge_base database
-    class cache cache
+    class postgres+pgvector,postgres,qdrant,minio database
+    class valkey,redis cache
 
+    class grafana dashboard
     class prometheus,cadvisor metrics
-    class grafana metrics
     class alloy,loki logs
 
     classDef application fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#111827

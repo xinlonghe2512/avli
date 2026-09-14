@@ -113,68 +113,69 @@ clean: ## Remove caches and build artifacts
 	dist
 	build
 
-# ---------------------- Python Docker Apps ---------------------- #
+# ---------------------- Application Docker Build ---------------------- #
 
-.PHONY: docker-build-asset-intel-service
-docker-build-asset-intel-service: ## Build the Avli Asset Intelligence Docker image
+.PHONY: build-asset-intel-service
+build-asset-intel-service: ## Build the Asset Intelligence Service Docker image
 	docker build -t $(PROJECT_NAME)-asset-intel-service apps/asset-intel-service
 
-.PHONY: docker-build-celery
-docker-build-celery: ## Build the Avli Celery Docker image
+.PHONY: build-celery
+build-celery: ## Build the Celery Docker image
 	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
 
-.PHONY: docker-build
-docker-build: docker-build-asset-intelligence docker-build-celery ## Build all Docker images
+.PHONY: build-all
+build: build-asset-intel-service build-celery ## Build both Docker images
 
-.PHONY: docker-up
-docker-up: ## Start the development Docker Compose stack
-	docker compose -f docker/compose.yaml up -d --build
+# ---------------------- Application Docker Compose ---------------------- #
 
-.PHONY: docker-down
-docker-down: ## Stop the development Docker Compose stack
-	docker compose -f docker/compose.yaml down
+.PHONY: app-up
+app-up: ## Start the application stack
+	docker compose -f docker/compose-app.yaml up -d --build
+
+.PHONY: app-down
+app-down: ## Stop the application stack
+	docker compose -f docker/compose-app.yaml down
 
 .PHONY: docker-logs
-docker-logs: ## Follow development Docker Compose logs
-	docker compose -f docker/compose.yaml logs -f
+app-logs: ## Follow the application stack logs
+	docker compose -f docker/compose-app.yaml logs -f
 
 .PHONY: docker-restart
-docker-restart: docker-down docker-up ## Restart the development Docker Compose stack
+app-restart: docker-down docker-up ## Restart the application stack
 
-# ---------------------- Langfuse Docker ---------------------- #
+# ---------------------- Observability Docker Compose ---------------------- #
 
-.PHONY: langfuse-up
-langfuse-up: ## Start the Langfuse stack
-	docker compose -f docker/compose-langfuse.yaml up -d
+.PHONY: obs-up
+obs-up: ## Start the observability stack
+	docker compose -f docker/compose-obs.yaml up -d
 
-.PHONY: langfuse-down
-langfuse-down: ## Stop the Langfuse stack
-	docker compose -f docker/compose-langfuse.yaml down
+.PHONY: obs-down
+obs-down: ## Stop the observability stack
+	docker compose -f docker/compose-obs.yaml down
 
-.PHONY: langfuse-logs
-langfuse-logs: ## Follow Langfuse logs
-	docker compose -f docker/compose-langfuse.yaml logs -f
+.PHONY: obs-logs
+obs-logs: ## Follow observability stack logs
+	docker compose -f docker/compose-obs.yaml logs -f
 
-.PHONY: langfuse-restart
-langfuse-restart: langfuse-down langfuse-up ## Restart the Langfuse stack
+.PHONY: obs-restart
+obs-restart: obs-down obs-up ## Restart the observability stack
 
+# ---------------------- AI Observability Docker Compose ---------------------- #
 
-# ---------------------- Prometheus-Loki-Grafana Docker ---------------------- #
+.PHONY: obs_ai-up
+obs_ai-up: ## Start the ai observability stack
+	docker compose -f docker/compose-obs_ai.yaml up -d
 
-.PHONY: plg-up
-plg-up: ## Start the PLG stack
-	docker compose -f docker/compose-plg.yaml up -d
+.PHONY: obs_ai-down
+obs_ai-down: ## Stop the ai observability stack
+	docker compose -f docker/compose-obs_ai.yaml down
 
-.PHONY: plg-down
-plg-down: ## Stop the PLG stack
-	docker compose -f docker/compose-plg.yaml down
+.PHONY: obs-logs
+obs_ai-logs: ## Follow ai observability stack logs
+	docker compose -f docker/compose-obs_ai.yaml logs -f
 
-.PHONY: plg-logs
-plg-logs: ## Follow PLG logs
-	docker compose -f docker/compose-plg.yaml logs -f
-
-.PHONY: plg-restart
-plg-restart: plg-down plg-up ## Restart the PLG stack
+.PHONY: obs_ai-restart
+obs_ai-restart: obs_ai-down obs_ai-up ## Restart the ai observability stack
 
 # ---------------------- Help ---------------------- #
 .PHONY: help
