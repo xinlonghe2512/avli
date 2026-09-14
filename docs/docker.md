@@ -93,28 +93,26 @@ graph TB
     %% =========================================================
 
     prometheus -->|"scrapes metrics"| fastapi
-    alloy -->|"scrapes logs"| fastapi
+    alloy -->|"collects logs"| fastapi
     fastapi -->|"send agent execution<br>telemetry"| langfuse-web
 
     %% =========================================================
     %% STYLING
     %% =========================================================
-    class sveltekit application
-    class fastapi microservice
-    class postgres+pgvector,postgres,qdrant,minio database
+    class sveltekit,grafana application
+    class fastapi,langfuse-worker service
+    class postgres+pgvector,postgres,qdrant,minio,clickhouse database
     class valkey,redis cache
 
-    class grafana dashboard
     class prometheus,cadvisor metrics
     class alloy,loki logs
 
     classDef application fill:#eef2ff,stroke:#6366f1,stroke-width:2px,color:#111827
-    classDef microservice fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#111827
+    classDef service fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#111827
     classDef database fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#111827
     classDef cache fill:#fefce8,stroke:#eab308,stroke-width:2px,color:#111827
 
     classDef metrics fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#111827
     classDef logs fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px,color:#111827
-    classDef collector fill:#ecfeff,stroke:#06b6d4,stroke-width:2px,color:#111827
 
 ```
