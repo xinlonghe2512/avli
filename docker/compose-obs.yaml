@@ -1,8 +1,8 @@
 services:
   # Monitoring Dashboard
   grafana:
-    image: docker.io/grafana/grafana:13.0.8-slim
     container_name: grafana
+    image: docker.io/grafana/grafana:13.0.8-slim
     restart: unless-stopped
     volumes:
       - grafana-data:/var/lib/grafana
@@ -12,48 +12,64 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_SECURITY_ADMIN_PASSWORD}
     networks:
-      - plg-network
+      - avli-obs-network
     env_file:
       - .env
-    depends_on:
-      - prometheus
 
-  # Log Aggregation System
+  # Metric Aggregation System
   prometheus:
-    image: docker.io/prom/prometheus:v3.13.3
     container_name: prometheus
+    image: docker.io/prom/prometheus:v3.13.3
     restart: unless-stopped
     ports:
       - ${PROMETHEUS_PORT?Variable not set}:9091
     volumes:
       - ./docker/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     networks:
-      - plg-network
+      - avli-obs-network
+    env_file:
+      - .env
+
+  # Container Metric Collector
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: unless-stopped
+    ports:
+      - ${CADVISOR_PORT?Variable not set}:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - avli-obs-network
     env_file:
       - .env
 
   # Log Aggregation System
   loki:
-    image: docker.io/grafana/loki:3.7.7
     container_name: loki
+    image: docker.io/grafana/loki:3.7.7
     restart: unless-stopped
     ports:
       - ${LOKI_PORT?Variable not set}:3100
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - plg-network
+      - avli-obs-network
     env_file:
       - .env
 
-  # Log Aggregation Agent
+  # Log Aggregation Collector
   alloy:
+    container_name: alloy
     image: docker.io/grafana/alloy:v1.19.2
-    container_name: promtail
     restart: unless-stopped
     ports:
       - ${ALLOY_PORT?Variable not set}:12345
     volumes:
       - ./docker/alloy/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - alloy-data:/var/lib/alloy/data
     command:
       - run
@@ -61,29 +77,11 @@ services:
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
     networks:
-      - plg-network
+      - avli-obs-network
     env_file:
       - .env
     depends_on:
       - loki
-
-  # promtail:
-  #   image: docker.io/grafana/promtail:3.6.11
-  #   container_name: promtail
-  #   restart: unless-stopped
-  #   volumes:
-  #     - /var/log:/var/log
-  #     - /etc/machine-id:/etc/machine-id
-  #     - ./docker/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
-  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   command: -config.file=/etc/promtail/promtail-config.yaml
-  #   networks:
-  #     - plg-network
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - loki
 
 volumes:
   grafana-data:
@@ -92,5 +90,5 @@ volumes:
     driver: local
 
 networks:
-  plg-network:
+  avli-obs-network:
     driver: bridge

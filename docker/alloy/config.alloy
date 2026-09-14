@@ -1,0 +1,29 @@
+discovery.docker "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "docker_logs" {
+  targets = discovery.docker.docker.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(fastapi-app|celery-worker)"
+    action        = "keep"
+  }
+}
+
+loki.source.docker "docker_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.docker_logs.output
+  forward_to = [loki.write.loki.receiver]
+
+  labels = {
+    job = "docker-logs"
+  }
+}
+
+loki.write "loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

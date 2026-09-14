@@ -104,6 +104,10 @@ services:
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EXECUTION_ROLE_ARN: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EXECUTION_ROLE_ARN:-}
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EGRESS_NETWORK_CONNECTOR_ARN: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EGRESS_NETWORK_CONNECTOR_ARN:-}
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_REGION: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_REGION:-}
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
   langfuse-web:
     image: docker.langfuse.com/langfuse/langfuse:4
@@ -132,6 +136,10 @@ services:
       # In-app agent settings.
       LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_USER: ${LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_USER:-}
       LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_ORG: ${LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_ORG:-}
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
   clickhouse:
     image: docker.io/clickhouse/clickhouse-server:25.12
@@ -153,6 +161,10 @@ services:
       timeout: 5s
       retries: 10
       start_period: 1s
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
   minio:
     image: cgr.dev/chainguard/minio
@@ -174,6 +186,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 1s
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
   redis:
     image: docker.io/redis:7
@@ -191,6 +207,10 @@ services:
       interval: 3s
       timeout: 10s
       retries: 10
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
   postgres:
     image: docker.io/postgres:${POSTGRES_VERSION:-17}
@@ -210,6 +230,10 @@ services:
       - 127.0.0.1:5432:5432
     volumes:
       - langfuse_postgres_data:/var/lib/postgresql/data
+    networks:
+      - avli-obs-network
+    env_file:
+      - .env
 
 volumes:
   langfuse_postgres_data:
@@ -222,3 +246,7 @@ volumes:
     driver: local
   langfuse_redis_data:
     driver: local
+
+networks:
+  avli-obs_ai-network:
+    driver: bridge
