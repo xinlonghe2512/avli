@@ -99,7 +99,7 @@ graph TB
     %% =========================================================
     %% STYLING
     %% =========================================================
-    class sveltekit,grafana application
+    class sveltekit,grafana,langfuse-web application
     class fastapi,langfuse-worker service
     class postgres+pgvector,postgres,qdrant,minio,clickhouse database
     class valkey,redis cache
