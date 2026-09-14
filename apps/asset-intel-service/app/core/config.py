@@ -140,31 +140,26 @@ class Settings:
         # Set the environment
         self.ENVIRONMENT = get_environment()
 
-        # Application Settings
+        # Application Configuration
         self.PROJECT_NAME = os.getenv("PROJECT_NAME", "FastAPI LangGraph Template")
         self.VERSION = os.getenv("VERSION", "1.0.0")
         self.DESCRIPTION = os.getenv(
             "DESCRIPTION",
             "A production-ready FastAPI template with LangGraph and Langfuse integration",
         )
-        self.API_V1_STR = os.getenv("API_V1_STR", "/api/v1")
+        self.API_PREFIX = os.getenv("API_PREFIX", "/api/v1")
         self.DEBUG = os.getenv("DEBUG", "false").lower() in ("true", "1", "t", "yes")
 
-        # CORS Settings
+        # CORS Configuration
         self.ALLOWED_ORIGINS = parse_list_from_env("ALLOWED_ORIGINS", ["*"])
 
-        # Langfuse Configuration
-        self.LANGFUSE_TRACING_ENABLED = os.getenv(
-            "LANGFUSE_TRACING_ENABLED", "false"
-        ).lower() in (
-            "true",
-            "1",
-            "t",
-            "yes",
+        # JWT Configuration
+        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
+        self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+        self.JWT_ACCESS_TOKEN_EXPIRE_DAYS = int(
+            os.getenv("JWT_ACCESS_TOKEN_EXPIRE_DAYS", "30")
         )
-        self.LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", "")
-        self.LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
-        self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+        self.validate_jwt_secret_key()
 
         # Model Provider Configuration
         self.MODEL_PROVIDER_API_KEY = os.getenv("MODEL_PROVIDER_API_KEY", "")
@@ -197,41 +192,33 @@ class Settings:
             "LONG_TERM_MEMORY_COLLECTION_NAME", "longterm_memory"
         )
 
-        # Embedding Model Configuration
-        self.EMBEDDING_MODEL = os.getenv(
-            "EMBEDDING_MODEL",
+        # Knowledge Base Configuration
+        self.KNOWLEDGE_BASE_EMBEDDING_MODEL = os.getenv(
+            "KNOWLEDGE_BASE_EMBEDDING_MODEL",
             "baai/bge-m3",
         )
-        self.EMBEDDING_MODEL_PATH = os.getenv(
-            "EMBEDDING_MODEL_PATH",
+        self.KNOWLEDGE_BASE_EMBEDDING_MODEL_PATH = os.getenv(
+            "KNOWLEDGE_BASE_EMBEDDING_MODEL_PATH",
             "./embedding-models/baai/bge-m3",
         )
-
-        # Vectorstore Configuration
-        self.VECTORSTORE_URL = os.getenv(
-            "VECTORSTORE_URL",
+        self.KNOWLEDGE_BASE_URL = os.getenv(
+            "KNOWLEDGE_BASE_URL",
             "http://localhost:6333",
         )
-        self.VECTORSTORE_API_KEY = os.getenv(
-            "VECTORSTORE_API_KEY",
+        self.KNOWLEDGE_BASE_API_KEY = os.getenv(
+            "KNOWLEDGE_BASE_API_KEY",
             "",
         )
-        self.VECTORSTORE_COLLECTION_NAME = os.getenv(
+        self.KNOWLEDGE_BASE_COLLECTION_NAME = os.getenv(
             "VECTOR_STORE_COLLECTION_NAME",
             "documents",
         )
-        self.VECTORSTORE_CHUNK_SIZE = int(os.getenv("VECTORSTORE_CHUNK_SIZE", "1024"))
-        self.VECTORSTORE_CHUNK_OVERLAP = int(
-            os.getenv("VECTORSTORE_CHUNK_OVERLAP", "200")
+        self.KNOWLEDGE_BASE_CHUNK_SIZE = int(
+            os.getenv("KNOWLEDGE_BASE_CHUNK_SIZE", "1024")
         )
-
-        # JWT Configuration
-        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
-        self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-        self.JWT_ACCESS_TOKEN_EXPIRE_DAYS = int(
-            os.getenv("JWT_ACCESS_TOKEN_EXPIRE_DAYS", "30")
+        self.KNOWLEDGE_BASE_CHUNK_OVERLAP = int(
+            os.getenv("KNOWLEDGE_BASE_CHUNK_OVERLAP", "200")
         )
-        self.validate_jwt_secret_key()
 
         # Logging Configuration
         self.LOG_DIR = Path(os.getenv("LOG_DIR", "logs"))
@@ -247,7 +234,7 @@ class Settings:
         # Postgres Configuration
         self.POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
         self.POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
-        self.POSTGRES_DB = os.getenv("POSTGRES_DB", "food_order_db")
+        self.POSTGRES_DB = os.getenv("POSTGRES_DB", "asset-intel-service-db")
         self.POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
         self.POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
         self.POSTGRES_POOL_SIZE = int(os.getenv("POSTGRES_POOL_SIZE", "20"))
@@ -258,12 +245,12 @@ class Settings:
             "checkpoints",
         ]
 
-        # Redis Cache Configuration (optional — if host is set, caching is enabled)
-        self.REDIS_HOST = os.getenv("REDIS_HOST", "")
-        self.REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-        self.REDIS_DB = int(os.getenv("REDIS_DB", "0"))
-        self.REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
-        self.REDIS_MAX_CONNECTIONS = int(os.getenv("REDIS_MAX_CONNECTIONS", "20"))
+        # Cache Configuration (optional — if host is set, caching is enabled)
+        self.CACHE_HOST = os.getenv("CACHE_HOST", "")
+        self.CACHE_PORT = int(os.getenv("CACHE_PORT", "6379"))
+        self.CACHE_DB = int(os.getenv("CACHE_DB", "0"))
+        self.CACHE_PASSWORD = os.getenv("CACHE_PASSWORD", "")
+        self.CACHE_MAX_CONNECTIONS = int(os.getenv("CACHE_MAX_CONNECTIONS", "20"))
         self.CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "60"))
 
         # Rate Limiting Configuration
@@ -290,14 +277,27 @@ class Settings:
             if value:
                 self.RATE_LIMIT_ENDPOINTS[endpoint] = value
 
-        # Evaluation Configuration
-        self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "deepseek/deepseek-v4-flash")
-        self.EVALUATION_BASE_URL = os.getenv(
-            "EVALUATION_BASE_URL", "https://api.openai.com/v1"
+        # Langfuse Configuration
+        self.LANGFUSE_TRACING_ENABLED = os.getenv(
+            "LANGFUSE_TRACING_ENABLED", "false"
+        ).lower() in (
+            "true",
+            "1",
+            "t",
+            "yes",
         )
+        self.LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", "")
+        self.LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
+        self.LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+
+        # Evaluation Configuration
         self.EVALUATION_API_KEY = os.getenv(
             "EVALUATION_API_KEY", self.MODEL_PROVIDER_API_KEY
         )
+        self.EVALUATION_API_URL = os.getenv(
+            "EVALUATION_API_URL", "https://api.openai.com/v1"
+        )
+        self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "deepseek/deepseek-v4-flash")
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
 
         # Apply environment-specific settings

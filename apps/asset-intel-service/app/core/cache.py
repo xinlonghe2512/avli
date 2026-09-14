@@ -1,6 +1,6 @@
 """Cache service with optional Redis backend.
 
-If REDIS_HOST is configured, uses Redis client to connect to Redis for distributed caching.
+If CACHE_HOST is configured, uses Redis client to connect to Redis for distributed caching.
 Otherwise, falls back to a simple in-memory TTL cache.
 """
 
@@ -119,11 +119,11 @@ class RedisCacheService:
         """Connect to Redis server."""
 
         client = Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
-            password=settings.REDIS_PASSWORD or None,
-            max_connections=settings.REDIS_MAX_CONNECTIONS,
+            host=settings.CACHE_HOST,
+            port=settings.CACHE_PORT,
+            db=settings.CACHE_DB,
+            password=settings.CACHE_PASSWORD or None,
+            max_connections=settings.CACHE_MAX_CONNECTIONS,
             decode_responses=True,
         )
 
@@ -133,8 +133,8 @@ class RedisCacheService:
         logger.info(
             "cache_initialized",
             backend="redis",
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
+            host=settings.CACHE_HOST,
+            port=settings.CACHE_PORT,
             ttl=self._default_ttl,
         )
 
@@ -207,10 +207,10 @@ def _create_cache_service() -> CacheService:
     """
     ttl = settings.CACHE_TTL_SECONDS
 
-    if settings.REDIS_HOST and REDIS_AVAILABLE:
+    if settings.CACHE_HOST and REDIS_AVAILABLE:
         return RedisCacheService(default_ttl=ttl)
 
-    if settings.REDIS_HOST and not REDIS_AVAILABLE:
+    if settings.CACHE_HOST and not REDIS_AVAILABLE:
         logger.warning(
             "redis_client_not_installed",
             hint="install with: uv add redis --optional cache",

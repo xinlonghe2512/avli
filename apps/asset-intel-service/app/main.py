@@ -47,7 +47,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
         "application_startup",
         project_name=settings.PROJECT_NAME,
         version=settings.VERSION,
-        api_prefix=settings.API_V1_STR,
+        api_prefix=settings.API_PREFIX,
     )
 
     # Initialize cache service (connects to Valkey if configured)
@@ -85,7 +85,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=settings.DESCRIPTION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    openapi_url=f"{settings.API_PREFIX}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
     lifespan=lifespan,
 )
@@ -150,7 +150,7 @@ app.add_middleware(
 )
 
 # Include API router
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")

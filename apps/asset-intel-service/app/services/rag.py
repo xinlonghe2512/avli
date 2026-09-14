@@ -21,15 +21,15 @@ class RAGService:
         """Create the Qdrant client."""
 
         return QdrantClient(
-            url=settings.VECTORSTORE_URL,
-            api_key=settings.VECTORSTORE_API_KEY,
+            url=settings.KNOWLEDGE_BASE_URL,
+            api_key=settings.KNOWLEDGE_BASE_API_KEY,
         )
 
     def _create_embedding_model(self) -> OpenAIEmbedding:
         """Create the embedding model."""
 
         return OpenAIEmbedding(
-            model=settings.EMBEDDING_MODEL,
+            model=settings.KNOWLEDGE_BASE_EMBEDDING_MODEL,
             api_key=settings.MODEL_PROVIDER_API_KEY,
             api_base=settings.MODEL_PROVIDER_API_BASE,
         )
@@ -39,7 +39,7 @@ class RAGService:
 
         vector_store = QdrantVectorStore(
             client=self._client,
-            collection_name=settings.VECTORSTORE_COLLECTION_NAME,
+            collection_name=settings.KNOWLEDGE_BASE_COLLECTION_NAME,
         )
 
         storage_context = StorageContext.from_defaults(

@@ -1,6 +1,6 @@
 services:
-  asset-intel:
-    container_name: asset-intel
+  asset-intel-service:
+    container_name: asset-intel-service
     build:
       context: .
       dockerfile: ../apps/asset-intel-service/Dockerfile
@@ -69,35 +69,22 @@ services:
     env_file:
       - .env
 
-  redis:
-    container_name: redis
-    image: docker.io/redis:8.10.1-alpine3.23
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
+  valkey:
+    container_name: valkey
+    image: valkey/valkey:8.1.6-alpine
+    restart: always
     ports:
-      - ${REDIS_PORT?Variable not set}:6379
+      - ${CACHE_PORT?Variable not set}:6379
     environment:
-      - REDIS_ARGS=--requirepass ${REDIS_PASSWORD?Variable not set} --appendonly yes
+      - REDIS_ARGS=--requirepass ${CACHE_PASSWORD?Variable not set} --appendonly yes
+    volumes:
+      - valkey-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "valkey-cli", "ping"]
       interval: 30s
-      retries: 3
+      retries: 5
       timeout: 10s
       start_period: 5s
-    networks:
-      - avli-network
-    env_file:
-      - .env
-
-  redis-insight:
-    container_name: redis-insight
-    image: docker.io/redis/redisinsight:3.8.0
-    restart: unless-stopped
-    volumes:
-      - redis_insight:/data
-    ports:
-      - ${REDIS_INSIGHT_PORT?Variable not set}:5540
     networks:
       - avli-network
     env_file:
@@ -110,7 +97,7 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     ports:
-      - ${QDRANT_REST_PORT?Variable not set}:6333
+      - ${KNOWLEDGE_BASE_PORT?Variable not set}:6333
     configs:
       - source: qdrant_config
         target: /qdrant/config/production.yaml
@@ -131,11 +118,9 @@ configs:
       log_level: INFO
 
 volumes:
+  valkey-data:
+    driver: local
   postgres-data:
-    driver: local
-  redis_data:
-    driver: local
-  redis_insight:
     driver: local
   qdrant_data:
     driver: local
