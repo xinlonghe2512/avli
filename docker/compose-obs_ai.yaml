@@ -221,9 +221,9 @@ services:
       timeout: 3s
       retries: 10
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} # CHANGEME
-      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${DATABASE_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_DB_PASSWORD:-postgres} # CHANGEME
+      POSTGRES_DB: ${DATABASE_DB_NAME:-postgres}
       TZ: UTC
       PGTZ: UTC
     ports:

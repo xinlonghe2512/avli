@@ -30,13 +30,13 @@ class DatabaseService:
         """Initialize database service with connection pool."""
         try:
             # Configure environment-specific database connection pool settings
-            pool_size = settings.POSTGRES_POOL_SIZE
-            max_overflow = settings.POSTGRES_MAX_OVERFLOW
+            pool_size = settings.DATABASE_DB_POOL_SIZE
+            max_overflow = settings.DATABASE_DB_MAX_OVERFLOW
 
             # Create engine with appropriate pool configuration
             connection_url = (
-                f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
-                f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+                f"postgresql://{settings.DATABASE_DB_USER}:{settings.DATABASE_DB_PASSWORD}"
+                f"@{settings.DATABASE_HOST}:{settings.DATABASE_PORT}/{settings.DATABASE_DB_NAME}"
             )
 
             self.engine = create_engine(

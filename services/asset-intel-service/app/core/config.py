@@ -231,15 +231,15 @@ class Settings:
             os.getenv("PROFILING_THRESHOLD_SECONDS", "2.0")
         )
 
-        # Postgres Configuration
-        self.POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
-        self.POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
-        self.POSTGRES_DB = os.getenv("POSTGRES_DB", "asset-intel-service-db")
-        self.POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-        self.POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
-        self.POSTGRES_POOL_SIZE = int(os.getenv("POSTGRES_POOL_SIZE", "20"))
-        self.POSTGRES_MAX_OVERFLOW = int(os.getenv("POSTGRES_MAX_OVERFLOW", "10"))
-        self.CHECKPOINT_TABLES = [
+        # Database Configuration
+        self.DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost")
+        self.DATABASE_PORT = int(os.getenv("DATABASE_PORT", "5432"))
+        self.DATABASE_DB_NAME = os.getenv("DATABASE_DB_NAME", "asset-intel-service-db")
+        self.DATABASE_DB_USER = os.getenv("DATABASE_DB_USER", "postgres")
+        self.DATABASE_DB_PASSWORD = os.getenv("DATABASE_DB_PASSWORD", "postgres")
+        self.DATABASE_DB_POOL_SIZE = int(os.getenv("DATABASE_DB_POOL_SIZE", "20"))
+        self.DATABASE_DB_MAX_OVERFLOW = int(os.getenv("DATABASE_DB_MAX_OVERFLOW", "10"))
+        self.DATABASE_DB_CHECKPOINT_TABLES = [
             "checkpoint_blobs",
             "checkpoint_writes",
             "checkpoints",

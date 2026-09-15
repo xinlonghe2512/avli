@@ -29,11 +29,11 @@ class MemoryService:
                             "provider": "pgvector",
                             "config": {
                                 "collection_name": settings.LONG_TERM_MEMORY_COLLECTION_NAME,
-                                "dbname": settings.POSTGRES_DB,
-                                "user": settings.POSTGRES_USER,
-                                "password": settings.POSTGRES_PASSWORD,
-                                "host": settings.POSTGRES_HOST,
-                                "port": settings.POSTGRES_PORT,
+                                "dbname": settings.DATABASE_DB_NAME,
+                                "user": settings.DATABASE_DB_USER,
+                                "password": settings.DATABASE_DB_PASSWORD,
+                                "host": settings.DATABASE_HOST,
+                                "port": settings.DATABASE_PORT,
                             },
                         },
                         "llm": {

@@ -99,12 +99,12 @@ class LangGraphWorkflow:
         if self._connection_pool is None:
             try:
                 # Configure pool size based on environment
-                max_size = settings.POSTGRES_POOL_SIZE
+                max_size = settings.DATABASE_DB_POOL_SIZE
 
                 connection_url = (
                     "postgresql://"
-                    f"{quote_plus(settings.POSTGRES_USER)}:{quote_plus(settings.POSTGRES_PASSWORD)}"
-                    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+                    f"{quote_plus(settings.DATABASE_DB_USER)}:{quote_plus(settings.DATABASE_DB_PASSWORD)}"
+                    f"@{settings.DATABASE_HOST}:{settings.DATABASE_PORT}/{settings.DATABASE_DB_NAME}"
                 )
 
                 self._connection_pool = AsyncConnectionPool(
@@ -548,7 +548,7 @@ class LangGraphWorkflow:
             # Batch all DELETEs in a single pipeline round-trip
             async with conn_pool.connection() as conn:
                 async with conn.pipeline():
-                    for table in settings.CHECKPOINT_TABLES:
+                    for table in settings.DATABASE_DB_CHECKPOINT_TABLES:
                         await conn.execute(
                             sql.SQL("DELETE FROM {} WHERE thread_id = %s").format(
                                 sql.Identifier(table)
@@ -557,7 +557,7 @@ class LangGraphWorkflow:
                         )
                 logger.info(
                     "checkpoint_tables_cleared_for_session",
-                    tables=settings.CHECKPOINT_TABLES,
+                    tables=settings.DATABASE_DB_CHECKPOINT_TABLES,
                     session_id=session_id,
                 )
 

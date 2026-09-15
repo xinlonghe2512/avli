@@ -52,15 +52,19 @@ services:
     image: docker.io/pgvector/pgvector:pg18-trixie
     restart: unless-stopped
     ports:
-      - ${POSTGRES_PORT?Variable not set}:5432
+      - ${DATABASE_PORT?Variable not set}:5432
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DATABASE_DB_NAME}
+      - POSTGRES_USER=${DATABASE_DB_USER}
+      - POSTGRES_PASSWORD=${DATABASE_DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DATABASE_DB_USER} -d ${DATABASE_DB_NAME}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
