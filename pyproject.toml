@@ -48,4 +48,4 @@ extend-ignore-re = [
 alls = "alls"
 
 [tool.uv.workspace]
-members = ["apps/*"]
+members = ["services/asset-intel-service"]

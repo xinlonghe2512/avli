@@ -19,7 +19,7 @@ dev: ## Show commands for running all services
 
 .PHONY: asset-intel-service
 asset-intel-service: ## Run the Asset Intelligence Service in development mode
-	cd apps/asset-intel-service && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	cd services/asset-intel-service && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # ---------------------- Dependencies ---------------------- #
 
@@ -68,13 +68,13 @@ audit: ## Check project's runtime dependencies
 
 .PHONY: test-asset-intel-service
 test-asset-intel-service: ## Run Asset Intelligence Service tests
-	cd apps/asset-intel-service && $(UV) run pytest tests
+	cd services/asset-intel-service && $(UV) run pytest tests
 
 # ---------------------- DeepEval ---------------------- #
 
 .PHONY: eval-asset-intel-service
 eval-asset-intel-service: ## Run Asset Intelligence Service DeepEval evaluations
-	cd apps/asset-intel-service && $(UV) run run deepeval test run tests/evals
+	cd services/asset-intel-service && $(UV) run run deepeval test run tests/evals
 
 # ---------------------- Full Check ------------------- #
 
@@ -117,7 +117,7 @@ clean: ## Remove caches and build artifacts
 
 .PHONY: build-asset-intel-service
 build-asset-intel-service: ## Build the Asset Intelligence Service Docker image
-	docker build -t $(PROJECT_NAME)-asset-intel-service apps/asset-intel-service
+	docker build -t $(PROJECT_NAME)-asset-intel-service services/asset-intel-service
 
 .PHONY: build-celery
 build-celery: ## Build the Celery Docker image

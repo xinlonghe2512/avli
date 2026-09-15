@@ -6,7 +6,7 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "cwd": "${workspaceFolder}/apps/asset-intel-service",
+      "cwd": "${workspaceFolder}/services/asset-intel-service",
       "args": [
         "app.main:app",
         "--host",
@@ -37,7 +37,7 @@
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
-      "cwd": "${workspaceFolder}/apps/asset-intel-service",
+      "cwd": "${workspaceFolder}/services/asset-intel-service",
       "args": ["-v"],
       "justMyCode": true,
       "console": "integratedTerminal"

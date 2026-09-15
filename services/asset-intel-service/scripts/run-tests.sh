@@ -11,4 +11,4 @@ fi
 
 docker-compose build
 docker-compose up -d
-docker-compose exec -T agent bash scripts/tests-start.sh "$@"
+docker-compose exec -T asset-intel-service bash scripts/tests-start.sh "$@"

@@ -3,7 +3,7 @@ services:
     container_name: asset-intel-service
     build:
       context: .
-      dockerfile: ../apps/asset-intel-service/Dockerfile
+      dockerfile: ../services/asset-intel-service/Dockerfile
     restart: unless-stopped
     volumes:
       - .:/workspace:cached

@@ -3,5 +3,5 @@
 set -e
 set -x
 
-cd apps/agent
+cd services/asset-intel-service
 FASTAPI_ENV=development uv run python -c "import app.main; import json; print(json.dumps(app.main.app.openapi()))" > ../openapi.json
