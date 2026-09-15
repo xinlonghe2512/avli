@@ -4,15 +4,21 @@ services:
     build:
       context: .
       dockerfile: ../services/asset-intel-service/Dockerfile
+      args:
+        AIS_ENV: ${AIS_ENV:-development}
     restart: unless-stopped
     volumes:
-      - .:/workspace:cached
+      - ./app:/app/app
+      - ./logs:/app/logs
     ports:
-      - ${AIS_REST_PORT?Variable not set}:8000
+      - ${AIS_PORT?Variable not set}:8000
     environment:
-      - ENVIRONMENT=${ENVIRONMENT?Variable not set}
-      - AIS_CORS_ORIGINS=${AIS_CORS_ORIGINS?Variable not set}
-      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - AIS_ENV=${AIS_ENV:-development}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set to a strong random value}
+      - DATABASE_HOST=${DATABASE_HOST?Variable not set}
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test:
         [
@@ -24,54 +30,51 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - avli-apps-network
     env_file:
       - .env
-    depends_on:
-      pgvector:
-        condition: service_healthy
+    networks:
+      - avli-services-network
 
   celery:
-    container_name: celery-worker
+    container_name: celery
     build:
       context: .
       dockerfile: ../celery.Dockerfile
     restart: unless-stopped
     volumes:
       - .:/workspace:cached
-    networks:
-      - avli-apps-network
+    depends_on:
+      - valkey
     env_file:
       - .env
-    depends_on:
-      - redis
+    networks:
+      - avli-services-network
 
-  pgvector:
-    container_name: pgvector
+  postgres:
+    container_name: postgres
     image: docker.io/pgvector/pgvector:pg18-trixie
     restart: unless-stopped
     ports:
       - ${DATABASE_PORT?Variable not set}:5432
     environment:
-      - POSTGRES_DB=${DATABASE_DB_NAME}
-      - POSTGRES_USER=${DATABASE_DB_USER}
-      - POSTGRES_PASSWORD=${DATABASE_DB_PASSWORD}
+      - POSTGRES_DB=${DATABASE_DB_NAME?Variable not set}
+      - POSTGRES_USER=${DATABASE_DB_USER?Variable not set}
+      - POSTGRES_PASSWORD=${DATABASE_DB_PASSWORD?Variable not set}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${DATABASE_DB_USER} -d ${DATABASE_DB_NAME}",
+          "pg_isready -U ${DATABASE_DB_USER?Variable not set} -d ${DATABASE_DB_NAME?Variable not set}",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - avli-apps-network
     env_file:
       - .env
+    networks:
+      - avli-services-network
 
   valkey:
     container_name: valkey
@@ -87,17 +90,17 @@ services:
       retries: 5
       timeout: 10s
       start_period: 5s
-    networks:
-      - avli-apps-network
     env_file:
       - .env
+    networks:
+      - avli-services-network
 
   qdrant:
     image: docker.io/qdrant/qdrant:v1.19.1-unprivileged
     container_name: qdrant
     restart: unless-stopped
     volumes:
-      - qdrant_data:/qdrant/storage
+      - qdrant-data:/qdrant/storage
     ports:
       - ${KNOWLEDGE_BASE_PORT?Variable not set}:6333
     configs:
@@ -109,10 +112,10 @@ services:
       retries: 3
       timeout: 10s
       start_period: 5s
-    networks:
-      - avli-apps-network
     env_file:
       - .env
+    networks:
+      - avli-services-network
 
 configs:
   qdrant_config:
@@ -124,9 +127,9 @@ volumes:
     driver: local
   postgres-data:
     driver: local
-  qdrant_data:
+  qdrant-data:
     driver: local
 
 networks:
-  avli-apps-network:
+  avli-services-network:
     driver: bridge

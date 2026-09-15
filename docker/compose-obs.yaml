@@ -24,7 +24,7 @@ services:
     ports:
       - ${PROMETHEUS_PORT?Variable not set}:9091
     volumes:
-      - ./docker/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     networks:
       - avli-obs-network
     env_file:
@@ -68,7 +68,7 @@ services:
     ports:
       - ${ALLOY_PORT?Variable not set}:12345
     volumes:
-      - ./docker/alloy/config.alloy:/etc/alloy/config.alloy
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - alloy-data:/var/lib/alloy/data
     command:

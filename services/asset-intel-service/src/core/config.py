@@ -44,7 +44,7 @@ def get_environment() -> Environment:
     Returns:
         Environment: The current environment (development, staging, production, or test)
     """
-    match os.getenv("APP_ENV", "development").lower():
+    match os.getenv("AIS_ENV", "development").lower():
         case "production" | "prod":
             return Environment.PRODUCTION
         case "staging" | "stage":

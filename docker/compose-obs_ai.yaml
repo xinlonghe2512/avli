@@ -104,10 +104,10 @@ services:
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EXECUTION_ROLE_ARN: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EXECUTION_ROLE_ARN:-}
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EGRESS_NETWORK_CONNECTOR_ARN: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_EGRESS_NETWORK_CONNECTOR_ARN:-}
       LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_REGION: ${LANGFUSE_IN_APP_AGENT_SANDBOX_AWS_LAMBDA_MICROVM_REGION:-}
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
   langfuse-web:
     image: docker.langfuse.com/langfuse/langfuse:4
@@ -136,10 +136,10 @@ services:
       # In-app agent settings.
       LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_USER: ${LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_USER:-}
       LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_ORG: ${LANGFUSE_IN_APP_AGENT_MAX_ACTIVE_RUNS_PER_ORG:-}
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
   clickhouse:
     image: docker.io/clickhouse/clickhouse-server:25.12
@@ -161,10 +161,10 @@ services:
       timeout: 5s
       retries: 10
       start_period: 1s
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
   minio:
     image: cgr.dev/chainguard/minio
@@ -186,10 +186,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 1s
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
   redis:
     image: docker.io/redis:7
@@ -207,10 +207,10 @@ services:
       interval: 3s
       timeout: 10s
       retries: 10
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
   postgres:
     image: docker.io/postgres:${POSTGRES_VERSION:-17}
@@ -230,10 +230,10 @@ services:
       - 127.0.0.1:5432:5432
     volumes:
       - langfuse_postgres_data:/var/lib/postgresql/data
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs_ai-network
 
 volumes:
   langfuse_postgres_data:

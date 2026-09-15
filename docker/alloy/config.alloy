@@ -7,7 +7,7 @@ discovery.relabel "docker_logs" {
 
   rule {
     source_labels = ["__meta_docker_container_name"]
-    regex         = "/(intel-asset-service|celery-worker)"
+    regex         = "/(intel-asset-service)"
     action        = "keep"
   }
 }
