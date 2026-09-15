@@ -8,7 +8,7 @@
       "module": "uvicorn",
       "cwd": "${workspaceFolder}/services/asset-intel-service",
       "args": [
-        "app.main:app",
+        "src.main:service",
         "--host",
         "0.0.0.0",
         "--port",

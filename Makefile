@@ -19,7 +19,7 @@ dev: ## Show commands for running all services
 
 .PHONY: asset-intel-service
 asset-intel-service: ## Run the Asset Intelligence Service in development mode
-	cd services/asset-intel-service && $(UV) run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	cd services/asset-intel-service && $(UV) run uvicorn src.main:service --reload --host 0.0.0.0 --port 8000
 
 # ---------------------- Dependencies ---------------------- #
 
@@ -126,22 +126,22 @@ build-celery: ## Build the Celery Docker image
 .PHONY: build-all
 build: build-asset-intel-service build-celery ## Build both Docker images
 
-# ---------------------- Application Docker Compose ---------------------- #
+# ---------------------- Service Docker Compose ---------------------- #
 
-.PHONY: app-up
-app-up: ## Start the application stack
-	docker compose -f docker/compose-app.yaml up -d --build
+.PHONY: services-up
+services-up: ## Start the service stack
+	docker compose -f docker/compose-services.yaml up -d --build
 
-.PHONY: app-down
-app-down: ## Stop the application stack
-	docker compose -f docker/compose-app.yaml down
+.PHONY: services-down
+services-down: ## Stop the service stack
+	docker compose -f docker/compose-services.yaml down
 
 .PHONY: docker-logs
-app-logs: ## Follow the application stack logs
-	docker compose -f docker/compose-app.yaml logs -f
+services-logs: ## Follow the service stack logs
+	docker compose -f docker/compose-services.yaml logs -f
 
 .PHONY: docker-restart
-app-restart: docker-down docker-up ## Restart the application stack
+services-restart: docker-down docker-up ## Restart the service stack
 
 # ---------------------- Observability Docker Compose ---------------------- #
 

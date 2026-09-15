@@ -47,7 +47,7 @@ source .venv/bin/activate
 
 Make sure your editor is using the correct Python virtual environment, with the interpreter at `asset-intel-service/.venv/bin/python`.
 
-Modify or add SQLModel models for data and SQL tables in `./asset-intel-service/app/models.py`, API endpoints in `./asset-intel-service/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./asset-intel-service/app/crud.py`.
+Modify or add SQLModel models for data and SQL tables in `./asset-intel-service/src/models.py`, API endpoints in `./asset-intel-service/src/api/`, CRUD (Create, Read, Update, Delete) utils in `./asset-intel-service/src/crud.py`.
 
 ## VS Code
 
@@ -86,21 +86,21 @@ docker compose exec agent bash
 You should see an output like:
 
 ```console
-root@7f2607af31c3:/app#
+root@7f2607af31c3:/src#
 ```
 
-that means that you are in a `bash` session inside your container, as a `root` user, under the `/app` directory, this directory has another directory called "app" inside, that's where your code lives inside the container: `/app/app`.
+that means that you are in a `bash` session inside your container, as a `root` user, under the `/src` directory, this directory has another directory called "src" inside, that's where your code lives inside the container: `/src/src`.
 
 There you can use the `fastapi run --reload` command to run the debug live reloading server.
 
 ```console
-fastapi run --reload app/main.py
+fastapi run --reload src/main.py
 ```
 
 ...it will look like:
 
 ```console
-root@7f2607af31c3:/app# fastapi run --reload app/main.py
+root@7f2607af31c3:/src# fastapi run --reload src/main.py
 ```
 
 and then hit enter. That runs the live reloading server that auto reloads when it detects code changes.
@@ -129,7 +129,7 @@ If your stack is already up and you just want to run the tests, you can use:
 docker compose exec agent bash scripts/tests-start.sh
 ```
 
-That `/app/scripts/tests-start.sh` script just calls `pytest` after making sure that the rest of the stack is running. If you need to pass extra arguments to `pytest`, you can pass them to that command and they will be forwarded.
+That `/src/scripts/tests-start.sh` script just calls `pytest` after making sure that the rest of the stack is running. If you need to pass extra arguments to `pytest`, you can pass them to that command and they will be forwarded.
 
 For example, to stop on first error:
 
@@ -143,7 +143,7 @@ When the tests are run, a file `htmlcov/index.html` is generated, you can open i
 
 ## Migrations
 
-As during local development your app directory is mounted as a volume inside the container, you can also run the migrations with `alembic` commands inside the container and the migration code will be in your app directory (instead of being only inside the container). So you can add it to your git repository.
+As during local development your src directory is mounted as a volume inside the container, you can also run the migrations with `alembic` commands inside the container and the migration code will be in your src directory (instead of being only inside the container). So you can add it to your git repository.
 
 Make sure you create a "revision" of your models and that you "upgrade" your database with that revision every time you change them. As this is what will update the tables in your database. Otherwise, your application will have errors.
 
@@ -153,7 +153,7 @@ Make sure you create a "revision" of your models and that you "upgrade" your dat
 docker compose exec agent bash
 ```
 
-* Alembic is already configured to import your SQLModel models from `./asset-intel-service/app/models.py`.
+* Alembic is already configured to import your SQLModel models from `./asset-intel-service/src/models.py`.
 
 * After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
 
@@ -169,7 +169,7 @@ alembic revision --autogenerate -m "Add column last_name to User model"
 alembic upgrade head
 ```
 
-If you don't want to use migrations at all, uncomment the lines in the file at `./asset-intel-service/app/core/db.py` that end in:
+If you don't want to use migrations at all, uncomment the lines in the file at `./asset-intel-service/src/core/db.py` that end in:
 
 ```python
 SQLModel.metadata.create_all(engine)
@@ -181,11 +181,11 @@ and comment the line in the file `scripts/prestart.sh` that contains:
 alembic upgrade head
 ```
 
-If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./asset-intel-service/app/alembic/versions/`. And then create a first migration as described above.
+If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./asset-intel-service/src/alembic/versions/`. And then create a first migration as described above.
 
 ## Email Templates
 
-The email templates are in `./asset-intel-service/app/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
+The email templates are in `./asset-intel-service/src/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
 
 Before continuing, ensure you have the [MJML extension](https://github.com/mjmlio/vscode-mjml) installed in your VS Code.
 

@@ -60,7 +60,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.coverage.run]
-source = ["app"]
+source = ["src"]
 dynamic_context = "test_function"
 
 [tool.coverage.report]
@@ -71,10 +71,10 @@ sort = "-Cover"
 show_contexts = true
 
 [tool.fastapi]
-entrypoint = "app.main:app"
+entrypoint = "src.main:service"
 
 [tool.hatch.build.targets.wheel]
-packages = ["app"]
+packages = ["src"]
 
 [tool.ruff]
 line-length = 88

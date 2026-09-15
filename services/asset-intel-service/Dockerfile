@@ -2,7 +2,7 @@
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
 # Set working directory
-WORKDIR /app
+WORKDIR /src
 
 # Install system dependencies and uv
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Set .venv in PATH for all commands
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/src/.venv/bin:$PATH"
 
 # Compile bytecode & force copy mode (for mounted volumes)
 ENV UV_COMPILE_BYTECODE=1
@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --package avli-asset-intel-service
 
 # Copy the rest of the application
-COPY . /app
+COPY . /src
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync \
     --locked \
@@ -40,4 +40,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Expose app port
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]
