@@ -15,8 +15,8 @@ services:
       - avli-apps-network
 
   caddy:
-    container_name: web
-    image: docker.io/caddy:latest
+    container_name: caddy
+    image: docker.io/caddy:2.11.4-nanoserver
     restart: unless-stopped
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile

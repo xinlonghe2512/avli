@@ -1,0 +1,3 @@
+yourdomain.localdomain {
+    reverse_proxy web:5173
+}
