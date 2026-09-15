@@ -1,27 +1,36 @@
-FROM docker.io/node:24-alpine AS builder
+FROM docker.io/node:24.21.0-alpine AS builder
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable && corepack prepare pnpm@12.4.2 --activate
 
 WORKDIR /app
 
-COPY package*.json .
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/web/package.json apps/web/package.json
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
-COPY . .
+COPY apps/web apps/web
 
-RUN npm run build
-RUN npm prune --production
+WORKDIR /app/apps/web
+
+RUN pnpm build
 
 
-FROM docker.io/node:24-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/build build/
-COPY --from=builder /app/node_modules node_modules/
-COPY package.json .
-
-EXPOSE 3000
+FROM docker.io/node:24.21.0-alpine
 
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=5173
+
+WORKDIR /app
+
+COPY --from=builder /app/apps/web/build ./build
+COPY --from=builder /app/apps/web/node_modules ./node_modules
+COPY --from=builder /app/apps/web/package.json ./
+
+EXPOSE 5173
 
 CMD [ "node", "build" ]

@@ -113,7 +113,11 @@ clean: ## Remove caches and build artifacts
 	dist
 	build
 
-# ---------------------- Application Docker Build ---------------------- #
+# ---------------------- Docker Build ---------------------- #
+
+.PHONY: build-web
+build-web: ## Build the Asset Intelligence Service Docker image
+	docker build -t $(PROJECT_NAME)-web apps/web
 
 .PHONY: build-asset-intel-service
 build-asset-intel-service: ## Build the Asset Intelligence Service Docker image
@@ -126,6 +130,23 @@ build-celery: ## Build the Celery Docker image
 .PHONY: build-all
 build: build-asset-intel-service build-celery ## Build both Docker images
 
+# ---------------------- Application Docker Compose ---------------------- #
+
+.PHONY: apps-up
+apps-up: ## Start the application stack
+	docker compose -f docker/compose-apps.yaml up -d --build
+
+.PHONY: apps-down
+apps-down: ## Stop the application stack
+	docker compose -f docker/compose-apps.yaml down
+
+.PHONY: apps-logs
+apps-logs: ## Follow the application stack logs
+	docker compose -f docker/compose-apps.yaml logs -f
+
+.PHONY: apps-restart
+apps-restart: docker-down docker-up ## Restart the application stack
+
 # ---------------------- Service Docker Compose ---------------------- #
 
 .PHONY: services-up
@@ -136,11 +157,11 @@ services-up: ## Start the service stack
 services-down: ## Stop the service stack
 	docker compose -f docker/compose-services.yaml down
 
-.PHONY: docker-logs
+.PHONY: apps-logs
 services-logs: ## Follow the service stack logs
 	docker compose -f docker/compose-services.yaml logs -f
 
-.PHONY: docker-restart
+.PHONY: apps-restart
 services-restart: docker-down docker-up ## Restart the service stack
 
 # ---------------------- Observability Docker Compose ---------------------- #

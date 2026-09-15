@@ -14,25 +14,25 @@ services:
     networks:
       - avli-apps-network
 
-  caddy:
-    container_name: caddy
-    image: docker.io/caddy:2.11.4-nanoserver
-    restart: unless-stopped
-    volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - caddy-data:/data
-    ports:
-      - ${REVERSE_PROXY_HTTP_PORT?Variable not set}:80
-      - ${REVERSE_PROXY_HTTPS_PORT?Variable not set}:443
-    depends_on:
-      - web
-    env_file:
-      - .env
-    networks:
-      - avli-apps-network
+#   caddy:
+#     container_name: caddy
+#     image: docker.io/caddy:2.11.4-nanoserver
+#     restart: unless-stopped
+#     volumes:
+#       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+#       - caddy-data:/data
+#     ports:
+#       - ${REVERSE_PROXY_HTTP_PORT?Variable not set}:80
+#       - ${REVERSE_PROXY_HTTPS_PORT?Variable not set}:443
+#     depends_on:
+#       - web
+#     env_file:
+#       - .env
+#     networks:
+#       - avli-apps-network
 
-volumes:
-  caddy-data:
+# volumes:
+#   caddy-data:
 
 networks:
   avli-apps-network:

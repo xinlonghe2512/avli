@@ -2,7 +2,6 @@ import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
-import adapter from "@sveltejs/adapter-node";
 import { sveltekit } from "@sveltejs/kit/vite";
 
 export default defineConfig({
@@ -20,7 +19,6 @@ export default defineConfig({
                 runes: ({ filename }) =>
                     filename.split(/[/\\]/).includes("node_modules") ? undefined : true,
             },
-            adapter: adapter(),
         }),
 
         paraglideVitePlugin({
@@ -29,6 +27,9 @@ export default defineConfig({
             emitTsDeclarations: true,
         }),
     ]),
+    server: {
+        port: 5173,
+    },
     test: {
         expect: { requireAssertions: true },
         projects: [
