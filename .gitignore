@@ -1,3 +1,29 @@
+# JS/TS
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Paraglide
+src/lib/paraglide
+project.inlang/cache/
+!.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -143,6 +169,8 @@ activemq-data/
 .env
 .env.*
 .env.*.local
+!.env.example
+!.env.test
 .envrc
 .venv
 env/
@@ -219,7 +247,6 @@ __marimo__/
 .deepeval/
 
 #
-node_modules/
 /test-results/
 /playwright-report/
 /blob-report/

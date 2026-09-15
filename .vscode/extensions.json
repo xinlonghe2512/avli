@@ -1,21 +1,24 @@
 {
-	"recommendations": [
-		"adpyke.codesnap",
-		"astral-sh.ty",
-		"bruno-api-client.bruno",
-		"charliermarsh.ruff",
-		"docker.docker",
-		"eamodio.gitlens",
-		"fastapilabs.fastapi-vscode",
-		"formulahendry.code-runner",
-		"github.vscode-github-actions",
-		"ms-python.debugpy",
-		"ms-vscode.makefile-tools",
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-		"redhat.vscode-yaml",
-		"redis.redis-for-vscode",
-		"tombi-toml.tombi",
-		"usernamehw.errorlens"
-	]
+  "recommendations": [
+    "adpyke.codesnap",
+    "astral-sh.ty",
+    "bradlc.vscode-tailwindcss",
+    "bruno-api-client.bruno",
+    "charliermarsh.ruff",
+    "docker.docker",
+    "eamodio.gitlens",
+    "fastapilabs.fastapi-vscode",
+    "formulahendry.code-runner",
+    "github.vscode-github-actions",
+    "ms-python.debugpy",
+    "ms-vscode.makefile-tools",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "redhat.vscode-yaml",
+    "redis.redis-for-vscode",
+    "svelte.svelte-vscode",
+    "tombi-toml.tombi",
+    "usernamehw.errorlens",
+    "VoidZero.vite-plus-extension-pack"
+  ]
 }
