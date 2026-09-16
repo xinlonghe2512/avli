@@ -24,7 +24,7 @@ repos:
         args: ["--fix=lf"]
       - id: check-yaml
         name: Validate YAML syntax
-        exclude: ^charts/.*\.yaml$
+        exclude: (^|/)pnpm-lock\.yaml$
       - id: check-ast
         name: Validate Python AST
       - id: check-json
@@ -41,7 +41,7 @@ repos:
         name: Validate symlinks
       - id: check-toml
         name: Validate TOML files
-        
+
   # --- Local pytest runner (optional auto-run if tests exist) ---
   - repo: local
     hooks:

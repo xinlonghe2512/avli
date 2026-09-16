@@ -1,136 +1,191 @@
 # ---------------------- Project Config ---------------------- #
 PROJECT_NAME := Avli
+
 ENV_FILE := .env
+
+AIS_DIR := services/asset-intel-service
+WEB_DIR := apps/web
+
 UV := uv
-PYTHON := $(UV) run python
-PREK := $(UV) run prek
+
+PNPM := pnpm
+VP := vpr
 
 .DEFAULT_GOAL := help
 
-# ---------------------- Local Development ---------------------- #
+# ---------------------- Shell ---------------------- #
+
 .PHONY: shell
 shell: ## Open Python shell inside the uv environment
-	$(PYTHON)
+	$(UV) run python
+
+# ---------------------- Local Development (Dev) ---------------------- #
 
 .PHONY: dev
 dev: ## Show commands for running all services
 	@echo "Run the services in separate terminals:"
-	@echo " make asset-intel-service"
+	@echo ""
+	@echo " make web"
+	@echo " make ais"
+	@echo ""
 
-.PHONY: asset-intel-service
-asset-intel-service: ## Run the Asset Intelligence Service in development mode
-	cd services/asset-intel-service && $(UV) run uvicorn src.main:service --reload --host 0.0.0.0 --port 8000
+.PHONY: web
+web: ## Run the SvelteKit web application in development mode
+	$(PNPM) --dir $(WEB_DIR) vpr dev --host 0.0.0.0
 
-# ---------------------- Dependencies ---------------------- #
+.PHONY: web-preview
+web-preview: ## Preview the production web build
+	$(PNPM) --dir $(WEB_DIR) vpr preview --host 0.0.0.0
+
+.PHONY: web-build
+web-build: ## Build the SvelteKit web application
+	$(PNPM) --dir $(WEB_DIR) vpr build
+
+.PHONY: ais
+ais: ## Run the Asset Intelligence Service in development mode
+	$(UV) run --directory $(AIS_DIR) uvicorn src.main:service --reload --host 0.0.0.0 --port 8000
+
+# ---------------------- Workspace Dependencies ---------------------- #
 
 .PHONY: install
-install: ## Install and sync all workspace dependencies
+install: install-python install-ts ## Install all workspace dependencies
+
+.PHONY: install-ts
+install-ts: ## Install TypeScript workspace dependencies
+	$(PNPM) --dir $(WEB_DIR) install --frozen-lockfile
+
+.PHONY: install-python
+install-python: ## Install Python workspace dependencies
 	$(UV) sync --all-packages
 
 .PHONY: lock
 lock: ## Update the uv lockfile
+	$(PNPM) --dir $(WEB_DIR) install --lockfile-only
 	$(UV) lock
 
 .PHONY: upgrade
 upgrade: ## Upgrade all dependencies and update the uv lockfile
+	$(PNPM) --dir $(WEB_DIR) update
 	$(UV) lock --upgrade
 
 .PHONY: sync
 sync: ## Sync the uv workspace from the lockfile
+	$(PNPM) --dir $(WEB_DIR) install --frozen-lockfile
 	$(UV) sync --all-packages --frozen
 
-# ---------------------- Linting & Formatting ---------------------- #
-.PHONY: format
-format: ## Format code with Ruff
-	$(UV) run ruff format .
+# ---------------------- Workspace Linting & Formatting ---------------------- #
+
+.PHONY: check
+web-check: ## Check all workspace code
+	$(PNPM) --dir $(WEB_DIR) vpr check
 
 .PHONY: lint
-lint: ## Lint and auto-fix code with Ruff
+web-lint: ## Lint all workspace code (uv auto-fix code with Ruff)
+	$(PNPM) --dir $(WEB_DIR) vpr lint
 	$(UV) run ruff check . --fix
+
+.PHONY: format
+web-format:## Format all workspace code
+	$(PNPM) --dir $(WEB_DIR) vpr fmt
+	$(UV) run ruff format .
 
 .PHONY: format-check
 format-check: ## Check formatting without modifying files
+	$(PNPM) --dir $(WEB_DIR) vpr fmt --check
 	$(UV) run ruff format --check .
 
 .PHONY: typecheck
-typecheck: ## Type-check the workspace with ty
+typecheck: ## Type-check all workspace code
+	$(PNPM) --dir $(WEB_DIR) vpr check
 	$(UV) run ty check
 
 .PHONY: audit
-audit: ## Check project's runtime dependencies
+audit: ## Check workspace runtime dependencies
+	$(PNPM) --dir $(WEB_DIR) audit || true
 	$(UV) audit --no-dev || true
 
-# .PHONY: scan
-# scan: ## Check project's runtime dependencies
-# 	@$(UV) run python scripts/scan-dependencies.py
+# ---------------------- Testing / Evaluation ---------------------- #
 
-# ---------------------- Testing ---------------------- ### Run all service test suites
+.PHONY: test
+install: test-web test-ais ## Test workspace
 
-.PHONY: test-asset-intel-service
-test-asset-intel-service: ## Run Asset Intelligence Service tests
-	cd services/asset-intel-service && $(UV) run pytest tests
+.PHONY: test-web
+web-test: ## Run web application tests
+	$(PNPM) --dir $(WEB_DIR) vpr test
 
-# ---------------------- DeepEval ---------------------- #
+.PHONY: test-ais
+test-ais: ## Run asset intelligence service tests
+	$(UV) run --directory $(AIS_DIR) pytest tests
 
-.PHONY: eval-asset-intel-service
-eval-asset-intel-service: ## Run Asset Intelligence Service DeepEval evaluations
-	cd services/asset-intel-service && $(UV) run run deepeval test run tests/evals
+.PHONY: eval-ais
+eval-ais: ## Run asset intelligence service DeepEval evaluations
+	$(UV) run --directory $(AIS_DIR) deepeval test run tests/evals
 
 # ---------------------- Full Check ------------------- #
 
 .PHONY: full-check
 full-check: ## Run all CI-equivalent checks
-	$(UV) run ruff format --check .
-	$(UV) run ruff check .
-	$(UV) run ty check
-	$(UV) run pytest -v
+	lint format-check typecheck test
 
 # ---------------------- Git Hooks -------------------- #
 
-.PHONY: hooks
-hooks: ## Run all prek hooks against all files
-	$(PREK) run --all-files
-
 .PHONY: install-hooks
 install-hooks: ## Install prek git hooks
-	$(PREK) install
+	$(UV) run prek install
 
 .PHONY: reinstall-hooks
 reinstall-hooks: ## Reinstall prek git hooks
-	$(PREK) uninstall
-	$(PREK) install --install-hooks
+	$(UV) run prek uninstall
+	$(UV) run prek install --install-hooks
+
+.PHONY: hooks
+hooks: ## Run all prek hooks against all files
+	$(UV) run prek run --all-files
 
 # ---------------------- Cleanup ---------------------- #
 .PHONY: clean
 clean: ## Remove caches and build artifacts
 	@echo "Cleaning up build and cache files..."
-	find . -type d -name "pycache" -prune -exec rm -rf {} +
-	rm -rf
-	.pytest_cache
-	.ruff_cache
-	.ty_cache
-	.coverage
-	dist
-	build
+
+	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -prune -exec rm -rf {} +
+	find . -type d -name ".ruff_cache" -prune -exec rm -rf {} +
+	find . -type d -name ".ty_cache" -prune -exec rm -rf {} +
+
+	rm -rf \
+		 .coverage \
+		 dist \
+		 build \
+		 $(WEB_DIR)/.svelte-kit \
+		 $(WEB_DIR)/build \
+		 $(WEB_DIR)/node_modules/.vite
 
 # ---------------------- Docker Build ---------------------- #
 
 .PHONY: build-web
 build-web: ## Build the Asset Intelligence Service Docker image
-	docker build -t $(PROJECT_NAME)-web apps/web
-
-.PHONY: build-asset-intel-service
-build-asset-intel-service: ## Build the Asset Intelligence Service Docker image
-	docker build -t $(PROJECT_NAME)-asset-intel-service services/asset-intel-service
+	docker build -t $(PROJECT_NAME)-web $(WEB_DIR)
 
 .PHONY: build-celery
 build-celery: ## Build the Celery Docker image
 	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
 
-.PHONY: build-all
-build: build-asset-intel-service build-celery ## Build both Docker images
+.PHONY: build-ais
+build-ais: ## Build the Asset Intelligence Service Docker image
+	docker build -t $(PROJECT_NAME)-asset-intel-service $(AIS_DIR)
 
-# ---------------------- Application Docker Compose ---------------------- #
+.PHONY: build-all
+build-all: build-web build-ais build-celery ## Build all Docker images
+
+# ---------------------- Full Stack Docker Compose ---------------------- #
+
+.PHONY: up
+up: apps-up services-up obs-up obs-ai-up ## Start all Docker Compose stacks
+
+.PHONY: down
+down: apps-down services-down obs-down obs-ai-down ## Stop all Docker Compose stacks
+
+# ---------------------- Application Stack Docker Compose ---------------------- #
 
 .PHONY: apps-up
 apps-up: ## Start the application stack
@@ -145,9 +200,9 @@ apps-logs: ## Follow the application stack logs
 	docker compose -f docker/compose-apps.yaml logs -f
 
 .PHONY: apps-restart
-apps-restart: docker-down docker-up ## Restart the application stack
+apps-restart: apps-down apps-up ## Restart the application stack
 
-# ---------------------- Service Docker Compose ---------------------- #
+# ---------------------- Service Stack Docker Compose ---------------------- #
 
 .PHONY: services-up
 services-up: ## Start the service stack
@@ -157,14 +212,14 @@ services-up: ## Start the service stack
 services-down: ## Stop the service stack
 	docker compose -f docker/compose-services.yaml down
 
-.PHONY: apps-logs
+.PHONY: services-logs
 services-logs: ## Follow the service stack logs
 	docker compose -f docker/compose-services.yaml logs -f
 
-.PHONY: apps-restart
-services-restart: docker-down docker-up ## Restart the service stack
+.PHONY: services-restart
+services-restart: services-down services-up ## Restart the service stack
 
-# ---------------------- Observability Docker Compose ---------------------- #
+# ---------------------- Observability Stack Docker Compose ---------------------- #
 
 .PHONY: obs-up
 obs-up: ## Start the observability stack
@@ -181,7 +236,7 @@ obs-logs: ## Follow observability stack logs
 .PHONY: obs-restart
 obs-restart: obs-down obs-up ## Restart the observability stack
 
-# ---------------------- AI Observability Docker Compose ---------------------- #
+# ---------------------- AI Observability Stack Docker Compose ---------------------- #
 
 .PHONY: obs_ai-up
 obs_ai-up: ## Start the ai observability stack

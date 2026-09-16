@@ -89,7 +89,6 @@ class OpenAITokenizer(Tokenizer):
         self,
         messages: Sequence[MessageInput],
     ) -> int:
-
         num_tokens = 0
 
         for message in messages:
