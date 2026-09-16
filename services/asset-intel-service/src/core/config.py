@@ -166,7 +166,7 @@ class Settings:
         )
 
         # Large Language Model Configuration
-        self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
+        self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-v4-flash")
         self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", 0.2))
         self.LLM_CONTEXT_BUDGET = int(os.getenv("LLM_CONTEXT_BUDGET", 2000))
         self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", 3))
@@ -177,7 +177,7 @@ class Settings:
 
         # Long Term Memory Configuration
         self.LONG_TERM_MEMORY_MODEL = os.getenv(
-            "LONG_TERM_MEMORY_MODEL", "deepseek/deepseek-v4-flash"
+            "LONG_TERM_MEMORY_MODEL", "deepseek-v4-flash"
         )
         self.LONG_TERM_MEMORY_EMBEDDING_MODEL = os.getenv(
             "LONG_TERM_MEMORY_EMBEDDER_MODEL", "baai/bge-m3"
@@ -305,7 +305,9 @@ class Settings:
         self.EVALUATION_API_URL = os.getenv(
             "EVALUATION_API_URL", "https://api.openai.com/v1"
         )
-        self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "deepseek/deepseek-v4-flash")
+        self.EVALUATION_LLM_MODEL = os.getenv(
+            "EVALUATION_LLM_MODEL", "deepseek-v4-flash"
+        )
         self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", 10))
 
         # Apply environment-specific settings

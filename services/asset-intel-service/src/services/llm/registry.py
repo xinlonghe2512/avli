@@ -33,6 +33,7 @@ class LLMEntry(TypedDict):
     """A registered LLM entry."""
 
     name: str
+    model: str
     llm: BaseChatModel
 
 
@@ -48,6 +49,7 @@ class LLMRegistry:
     LLMS: list[LLMEntry] = [
         {
             "name": "deepseek-v4-flash",
+            "model": "deepseek/deepseek-v4-flash",
             "llm": ChatOpenRouter(
                 model="deepseek/deepseek-v4-flash",
                 api_key=OPENROUTER_API_KEY,
@@ -57,6 +59,7 @@ class LLMRegistry:
         },
         {
             "name": "deepseek-v4-flash-latest",
+            "model": "~deepseek/deepseek-v4-flash-latest",
             "llm": ChatOpenRouter(
                 model="~deepseek/deepseek-v4-flash-latest",
                 api_key=OPENROUTER_API_KEY,
