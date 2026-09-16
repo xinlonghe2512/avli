@@ -7,15 +7,30 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
 from src.core.config import settings
+from src.core.logging import logger
 
 
 class RAGService:
     """Service for managing knowledge base using LlamaIndex and Qdrant."""
 
     def __init__(self) -> None:
-        self._client = self._create_qdrant_client()
-        self._embed_model = self._create_embedding_model()
-        self._index = self._create_index()
+        self._client: QdrantClient | None = None
+        self._embed_model: OpenAIEmbedding | None = None
+        self._index: VectorStoreIndex | None = None
+
+        try:
+            self._client = self._create_qdrant_client()
+            self._embed_model = self._create_embedding_model()
+            self._index = self._create_index()
+
+        except Exception as exc:
+            logger.warning(
+                "Knowledge base unavailable: %s",
+                exc,
+            )
+
+            self._client = None
+            self._index = None
 
     def _create_qdrant_client(self) -> QdrantClient:
         """Create the Qdrant client."""
@@ -56,11 +71,19 @@ class RAGService:
             embed_model=self._embed_model,
         )
 
-    def get_retriever(self, top_k: int) -> BaseRetriever:
-        """Return a retriever for the knowledge base."""
+    @property
+    def available(self) -> bool:
+        """Return whether the knowledge base is available."""
+        return self._index is not None
 
+    def get_retriever(self, top_k: int) -> BaseRetriever | None:
+        """Return a retriever for the knowledge base."""
         if top_k <= 0:
             raise ValueError("top_k must be greater than zero")
+
+        if self._index is None:
+            logger.warning("Knowledge base is unavailable; skipping retrieval")
+            return None
 
         return self._index.as_retriever(
             similarity_top_k=top_k,

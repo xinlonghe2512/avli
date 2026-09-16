@@ -111,6 +111,7 @@ class LangGraphWorkflow:
                     connection_url,
                     open=False,
                     max_size=max_size,
+                    timeout=5,
                     kwargs={
                         "autocommit": True,
                         "connect_timeout": 5,

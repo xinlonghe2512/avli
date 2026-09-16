@@ -36,7 +36,11 @@ langfuse_init()
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+    """Generate a unique operation ID for an API route."""
+    if route.tags:
+        return f"{route.tags[0]}-{route.name}"
+
+    return route.name
 
 
 @asynccontextmanager
