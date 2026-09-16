@@ -13,7 +13,7 @@ from pydantic import SecretStr
 from src.core.config import settings
 from src.core.logging import logger
 
-_API_KEY = SecretStr(settings.MODEL_PROVIDER_API_KEY)
+OPENROUTER_API_KEY = SecretStr(settings.MODEL_PROVIDER_API_KEY)
 
 # Every model here is a reasoning model, and the API rejects the classic sampling
 # knobs (`top_p`, `presence_penalty`, `frequency_penalty`) with a 400 once
@@ -47,19 +47,19 @@ class LLMRegistry:
     # fallback chain, so it degrades newest -> cheapest.
     LLMS: list[LLMEntry] = [
         {
-            "name": "deepseek-v4-flash-latest",
+            "name": "deepseek-v4-flash",
             "llm": ChatOpenRouter(
-                model="~deepseek/deepseek-v4-flash-latest",
-                api_key=_API_KEY,
+                model="deepseek/deepseek-v4-flash",
+                api_key=OPENROUTER_API_KEY,
                 max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
                 reasoning={"effort": "medium"},
             ),
         },
         {
-            "name": "deepseek-v4-flash",
+            "name": "deepseek-v4-flash-latest",
             "llm": ChatOpenRouter(
-                model="deepseek/deepseek-v4-flash",
-                api_key=_API_KEY,
+                model="~deepseek/deepseek-v4-flash-latest",
+                api_key=OPENROUTER_API_KEY,
                 max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
                 reasoning={"effort": "medium"},
             ),
@@ -106,7 +106,7 @@ class LLMRegistry:
 
             return ChatOpenRouter(
                 model=base_llm.model_name,
-                api_key=_API_KEY,
+                api_key=OPENROUTER_API_KEY,
                 max_completion_tokens=settings.LLM_CONTEXT_BUDGET,
                 **kwargs,
             )

@@ -11,8 +11,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.core.logging import logger
-
 WEAK_JWT_SECRET_KEYS = {
     "",
     "changeme",
@@ -59,8 +57,8 @@ def get_environment() -> Environment:
 def load_env_file() -> str | None:
     """Load environment-specific .env file."""
     env = get_environment()
-    logger.info(f"Loading environment: {env}")
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    # logger.info(f"Loading environment: {env}")
+    base_dir = Path(__file__).resolve().parents[4]
 
     # Define env files in priority order
     env_files = [
@@ -74,7 +72,7 @@ def load_env_file() -> str | None:
     for env_file in env_files:
         if os.path.isfile(env_file):
             load_dotenv(dotenv_path=env_file)
-            logger.info(f"Loaded environment from {env_file}")
+            # logger.info(f"Loaded environment from {env_file}")
             return env_file
 
     # Fall back to default if no env file found
@@ -169,10 +167,10 @@ class Settings:
 
         # Large Language Model Configuration
         self.LLM_MODEL = os.getenv("LLM_MODEL", "deepseek/deepseek-v4-flash")
-        self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.2"))
-        self.LLM_CONTEXT_BUDGET = int(os.getenv("LLM_CONTEXT_BUDGET", "2000"))
-        self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", "3"))
-        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", "60"))
+        self.LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", 0.2))
+        self.LLM_CONTEXT_BUDGET = int(os.getenv("LLM_CONTEXT_BUDGET", 2000))
+        self.LLM_MAX_CALL_RETRIES = int(os.getenv("LLM_MAX_CALL_RETRIES", 3))
+        self.LLM_TOTAL_TIMEOUT = int(os.getenv("LLM_TOTAL_TIMEOUT", 60))
         self.SESSION_NAMING_ENABLED = (
             os.getenv("SESSION_NAMING_ENABLED", "true").lower() == "true"
         )
@@ -201,11 +199,21 @@ class Settings:
             "KNOWLEDGE_BASE_EMBEDDING_MODEL_PATH",
             "./embedding-models/baai/bge-m3",
         )
-        self.KNOWLEDGE_BASE_URL = os.getenv(
-            "KNOWLEDGE_BASE_URL",
-            "http://localhost:6333",
+        self.KNOWLEDGE_BASE_HOST = os.getenv(
+            "KNOWLEDGE_BASE_HOST",
+            "localhost",
         )
-        self.KNOWLEDGE_BASE_API_KEY = os.getenv(
+        self.KNOWLEDGE_BASE_PORT = int(
+            os.getenv(
+                "KNOWLEDGE_BASE_PORT",
+                6333,
+            )
+        )
+        self.KNOWLEDGE_BASE_CLOUD_URL = os.getenv(
+            "KNOWLEDGE_BASE_URL",
+            "",
+        )
+        self.KNOWLEDGE_BASE_CLOUD_API_KEY = os.getenv(
             "KNOWLEDGE_BASE_API_KEY",
             "",
         )
@@ -214,10 +222,10 @@ class Settings:
             "documents",
         )
         self.KNOWLEDGE_BASE_CHUNK_SIZE = int(
-            os.getenv("KNOWLEDGE_BASE_CHUNK_SIZE", "1024")
+            os.getenv("KNOWLEDGE_BASE_CHUNK_SIZE", 1024)
         )
         self.KNOWLEDGE_BASE_CHUNK_OVERLAP = int(
-            os.getenv("KNOWLEDGE_BASE_CHUNK_OVERLAP", "200")
+            os.getenv("KNOWLEDGE_BASE_CHUNK_OVERLAP", 200)
         )
 
         # Logging Configuration
@@ -233,12 +241,12 @@ class Settings:
 
         # Database Configuration
         self.DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost")
-        self.DATABASE_PORT = int(os.getenv("DATABASE_PORT", "5432"))
+        self.DATABASE_PORT = int(os.getenv("DATABASE_PORT", 5432))
         self.DATABASE_DB_NAME = os.getenv("DATABASE_DB_NAME", "asset-intel-service-db")
         self.DATABASE_DB_USER = os.getenv("DATABASE_DB_USER", "postgres")
         self.DATABASE_DB_PASSWORD = os.getenv("DATABASE_DB_PASSWORD", "postgres")
-        self.DATABASE_DB_POOL_SIZE = int(os.getenv("DATABASE_DB_POOL_SIZE", "20"))
-        self.DATABASE_DB_MAX_OVERFLOW = int(os.getenv("DATABASE_DB_MAX_OVERFLOW", "10"))
+        self.DATABASE_DB_POOL_SIZE = int(os.getenv("DATABASE_DB_POOL_SIZE", 20))
+        self.DATABASE_DB_MAX_OVERFLOW = int(os.getenv("DATABASE_DB_MAX_OVERFLOW", 10))
         self.DATABASE_DB_CHECKPOINT_TABLES = [
             "checkpoint_blobs",
             "checkpoint_writes",
@@ -247,11 +255,11 @@ class Settings:
 
         # Cache Configuration (optional — if host is set, caching is enabled)
         self.CACHE_HOST = os.getenv("CACHE_HOST", "")
-        self.CACHE_PORT = int(os.getenv("CACHE_PORT", "6379"))
-        self.CACHE_DB = int(os.getenv("CACHE_DB", "0"))
+        self.CACHE_PORT = int(os.getenv("CACHE_PORT", 6379))
+        self.CACHE_DB = int(os.getenv("CACHE_DB", 0))
         self.CACHE_PASSWORD = os.getenv("CACHE_PASSWORD", "")
-        self.CACHE_MAX_CONNECTIONS = int(os.getenv("CACHE_MAX_CONNECTIONS", "20"))
-        self.CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "60"))
+        self.CACHE_MAX_CONNECTIONS = int(os.getenv("CACHE_MAX_CONNECTIONS", 20))
+        self.CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", 60))
 
         # Rate Limiting Configuration
         self.RATE_LIMIT_DEFAULT = parse_list_from_env(
@@ -298,7 +306,7 @@ class Settings:
             "EVALUATION_API_URL", "https://api.openai.com/v1"
         )
         self.EVALUATION_LLM = os.getenv("EVALUATION_LLM", "deepseek/deepseek-v4-flash")
-        self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", "10"))
+        self.EVALUATION_SLEEP_TIME = int(os.getenv("EVALUATION_SLEEP_TIME", 10))
 
         # Apply environment-specific settings
         self.apply_environment_settings()

@@ -246,6 +246,9 @@ __marimo__/
 # Deepeval
 .deepeval/
 
+# Jsonl
+*.jsonl
+
 #
 /test-results/
 /playwright-report/

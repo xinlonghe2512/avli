@@ -21,15 +21,19 @@ class RAGService:
         """Create the Qdrant client."""
 
         return QdrantClient(
-            url=settings.KNOWLEDGE_BASE_URL,
-            api_key=settings.KNOWLEDGE_BASE_API_KEY,
+            host=settings.KNOWLEDGE_BASE_HOST, port=settings.KNOWLEDGE_BASE_PORT
         )
+
+        # return QdrantClient(
+        #     url=settings.KNOWLEDGE_BASE_CLOUD_URL,
+        #     api_key=settings.KNOWLEDGE_BASE_CLOUD_API_KEY,
+        # )
 
     def _create_embedding_model(self) -> OpenAIEmbedding:
         """Create the embedding model."""
 
         return OpenAIEmbedding(
-            model=settings.KNOWLEDGE_BASE_EMBEDDING_MODEL,
+            model_name=settings.KNOWLEDGE_BASE_EMBEDDING_MODEL,
             api_key=settings.MODEL_PROVIDER_API_KEY,
             api_base=settings.MODEL_PROVIDER_API_BASE,
         )

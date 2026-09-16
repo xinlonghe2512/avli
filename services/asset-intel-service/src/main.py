@@ -20,7 +20,7 @@ from src.api.v1.api import api_router
 from src.api.v1.routes.chatbot import workflow
 from src.core.cache import cache_service
 from src.core.config import settings
-from src.core.logging import logger, setup_logging
+from src.core.logging import logger
 from src.core.metrics import setup_metrics
 from src.core.middleware import (
     LoggingContextMiddleware,
@@ -32,7 +32,6 @@ from src.services.memory import memory_service
 
 # Load environment variables
 load_dotenv()
-setup_logging()
 langfuse_init()
 
 
