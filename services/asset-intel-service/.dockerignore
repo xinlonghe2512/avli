@@ -1,14 +1,31 @@
 .venv
+**/.venv
+
 __pycache__
+**/__pycache__
+
 *.py[cod]
 *.pyc
 
 .cache
+
 .pytest_cache
+**/.pytest_cache
+
 .ruff_cache
+**/.ruff_cache
+
 .ty_cache
-.coverage
+**/.ty_cache
+
+.mypy_cache
+**/.mypy_cache
+
+coverage
+**/coverage
+
 htmlcov
+**/htmlcov
 
 src.egg-info
 

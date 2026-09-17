@@ -38,3 +38,13 @@ alls = "alls"
 
 [tool.uv.workspace]
 members = ["services/asset-intel-service"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://pytorch.org"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }

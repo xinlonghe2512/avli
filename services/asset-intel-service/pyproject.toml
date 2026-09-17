@@ -15,7 +15,7 @@ dependencies = [
   "celery[redis]>=5.3.1",
   "ddgs>=9.16.0",
   "deepseek-tokenizer>=0.3.0",
-  "docling>=2.126.0",
+  "docling>=2.128.0",
   "fastapi[standard]>=0.141.1,<1.0.0",
   "langchain-openrouter>=0.2.8",
   "langfuse>=4.14.4",
@@ -84,21 +84,21 @@ fix = true
 
 [tool.ruff.lint]
 select = [
-  "E", # pycodestyle errors
-  "W", # pycodestyle warnings
-  "F", # pyflakes
-  "I", # isort
-  "B", # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
-  "ARG001", # unused arguments in functions
-  "T201", # print statements are not allowed
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "ARG001",  # unused arguments in functions
+  "T201",  # print statements are not allowed
 ]
 ignore = [
-  "E501", # line too long, handled by black
-  "B008", # do not perform function calls in argument defaults
-  "W191", # indentation contains tabs
-  "B904", # Allow raising exceptions without from e, for HTTPException
+  "E501",  # line too long, handled by black
+  "B008",  # do not perform function calls in argument defaults
+  "W191",  # indentation contains tabs
+  "B904",  # Allow raising exceptions without from e, for HTTPException
 ]
 extend-select = ["ANN", "PYI"]
 preview = true
@@ -109,3 +109,12 @@ keep-runtime-typing = true
 
 [tool.ty.terminal]
 error-on-warning = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]

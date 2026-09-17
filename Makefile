@@ -176,7 +176,7 @@ build-celery: ## Build the Celery Docker image
 
 .PHONY: build-ais
 build-ais: ## Build the Asset Intelligence Service Docker image
-	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service $(AIS_DIR)
+	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service -f $(AIS_DIR)/Dockerfile .
 
 .PHONY: build-all
 build-all: build-web build-ais build-celery ## Build all Docker images
