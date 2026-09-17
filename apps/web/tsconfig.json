@@ -3,7 +3,6 @@
   "compilerOptions": {
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
@@ -14,10 +13,6 @@
 
     "noEmit": true,
     "sourceMap": true
-  }
-  // Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
-  // except $lib which is handled by https://svelte.dev/docs/kit/configuration#files
-  //
-  // To make changes to top-level options such as include and exclude, we recommend extending
-  // the generated config; see https://svelte.dev/docs/kit/configuration#typescript
+  },
+  "exclude": ["src/**/*.svelte.spec.ts", "src/**/*.svelte.test.ts"]
 }

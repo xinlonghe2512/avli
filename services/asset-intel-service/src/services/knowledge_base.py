@@ -10,7 +10,7 @@ from src.core.config import settings
 from src.core.logging import logger
 
 
-class RAGService:
+class KnowledgeBaseService:
     """Service for managing knowledge base using LlamaIndex and Qdrant."""
 
     def __init__(self) -> None:
@@ -90,4 +90,5 @@ class RAGService:
         )
 
 
-rag_service = RAGService()
+# Create a singleton instance
+knowledge_base_service = KnowledgeBaseService()

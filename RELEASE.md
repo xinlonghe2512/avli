@@ -8,33 +8,33 @@ triggered by a tag push.
 ## Steps
 
 1. Update version in the following files and commit on `main`:
-    - `CHANGELOG.md`
-    - `main.go`
-    - `install`
-    - `install.ps1`
+   - `CHANGELOG.md`
+   - `main.go`
+   - `install`
+   - `install.ps1`
 
 2. Verify file consistency, sign the tag, and push the tag.
 
-    ```sh
-    make tag VERSION=0.1.1
-    ```
+   ```sh
+   make tag VERSION=0.1.1
+   ```
 
-    `make tag` runs `prerelease` first (checks that the version
-    appears in CHANGELOG.md, both man pages, install, and install.ps1)
-    and pushes the tag if the checks pass.
+   `make tag` runs `prerelease` first (checks that the version
+   appears in CHANGELOG.md, both man pages, install, and install.ps1)
+   and pushes the tag if the checks pass.
 
-    Only the tag is pushed; `main` on origin still points to the
-    old version, so `/main/install` keeps resolving against existing
-    binaries during the publish window.
+   Only the tag is pushed; `main` on origin still points to the
+   old version, so `/main/install` keeps resolving against existing
+   binaries during the publish window.
 
 3. The workflow fires on the tag push and pauses on the `release`
    environment gate. Approve it in the Actions tab to release.
 
 4. After the GitHub release is published, fast-forward `main`:
 
-    ```sh
-    git push origin main
-    ```
+   ```sh
+   git push origin main
+   ```
 
 ## Testing the workflow
 

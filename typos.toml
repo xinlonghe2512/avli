@@ -3,6 +3,4 @@
 locale = "en-us"
 
 [files]
-extend-exclude = [
-  ".venv/**",
-]
+extend-exclude = [".venv/**"]

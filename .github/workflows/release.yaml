@@ -3,7 +3,7 @@ name: go-releaser
 on:
   push:
     tags:
-      - 'v*' # Triggers whenever you push a tag starting with 'v'
+      - "v*" # Triggers whenever you push a tag starting with 'v'
 
 permissions:
   contents: write # Allows the runner to create a GitHub Release and attach files
@@ -27,7 +27,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: '~> v2'
+          version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Built-in GitHub token

@@ -1,17 +1,6 @@
 {
   "name": "avli-workspace",
   "private": true,
-  "packageManager": "pnpm@12.4.2",
-  "engines": {
-    "node": ">=24 <25"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.4.2",
-      "onFail": "download"
-    }
-  },
   "scripts": {
     "dev": "vp dev",
     "check": "vp check",
@@ -25,11 +14,23 @@
     "@vitest/browser-playwright": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
   "lint-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern"
-  }
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.4.2",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "pnpm@12.4.2"
 }

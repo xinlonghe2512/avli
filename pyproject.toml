@@ -5,15 +5,9 @@ description = "Monorepo for Avli Project"
 requires-python = ">=3.13"
 
 [dependency-groups]
-dev = [
-  "prek>=0.4.11,<1.0.0",
-  "ty>=0.0.74",
-  "zizmor>=1.28.0",
-]
+dev = ["prek>=0.4.11,<1.0.0", "ty>=0.0.74", "zizmor>=1.28.0"]
 
-github-actions = [
-  "smokeshow >=0.5.0",
-]
+github-actions = ["smokeshow >=0.5.0"]
 
 [tool.ty]
 [tool.ty.environment]
@@ -29,12 +23,7 @@ unsound-return-statement = "error"
 strict-equality-semantics = true
 
 [tool.typos.files]
-extend-exclude = [
-  "img/",
-  "uv.lock",
-  "**/coverage/",
-  "**/htmlcov/",
-]
+extend-exclude = ["img/", "uv.lock", "**/coverage/", "**/htmlcov/"]
 
 [tool.typos.default]
 extend-ignore-re = [

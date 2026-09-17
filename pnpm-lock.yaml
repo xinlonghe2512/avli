@@ -173,6 +173,9 @@ catalogs:
     oxlint:
       specifier: 1.83.0
       version: 1.83.0
+    oxlint-tsgolint:
+      specifier: ^7.0.2001
+      version: 7.0.2001
     vite:
       specifier: npm:@voidzero-dev/vite-plus-core@0.3.2
       version: 0.3.2
@@ -200,6 +203,9 @@ importers:
       oxlint:
         specifier: 'catalog:'
         version: 1.83.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.2(@vitest/browser-playwright@4.1.11)(jiti@2.7.0)(svelte@5.57.0)(typescript@6.0.3))
+      oxlint-tsgolint:
+        specifier: 'catalog:'
+        version: 7.0.2001
       vite:
         specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@0.3.2(jiti@2.7.0)(typescript@6.0.3)'

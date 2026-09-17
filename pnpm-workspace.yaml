@@ -7,6 +7,7 @@ catalog:
   vite-plus: 0.3.2
   "@vitest/browser-playwright": 4.1.11
   oxlint: 1.83.0
+  oxlint-tsgolint: "^7.0.2001"
   oxfmt: 0.68.0
 
 overrides:

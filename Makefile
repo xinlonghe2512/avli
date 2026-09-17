@@ -76,16 +76,21 @@ sync: ## Sync the uv workspace from the lockfile
 # ---------------------- Workspace Linting & Formatting ---------------------- #
 
 .PHONY: check
-web-check: ## Check all workspace code
+check: ## Check all workspace code
 	$(PNPM) --dir $(WEB_DIR) vpr check
 
 .PHONY: lint
-web-lint: ## Lint all workspace code (uv auto-fix code with Ruff)
-	$(PNPM) --dir $(WEB_DIR) vpr lint
+lint: ## Lint all workspace code
+	$(PNPM) --dir $(WEB_DIR) vpr lint:fix
 	$(UV) run ruff check . --fix
 
+.PHONY: lint-check
+lint-check: ## Check Linting without modifying files
+	$(PNPM) --dir $(WEB_DIR) vpr lint
+	$(UV) run ruff check .
+
 .PHONY: format
-web-format:## Format all workspace code
+format:## Format all workspace code
 	$(PNPM) --dir $(WEB_DIR) vpr fmt
 	$(UV) run ruff format .
 
@@ -107,10 +112,10 @@ audit: ## Check workspace runtime dependencies
 # ---------------------- Testing / Evaluation ---------------------- #
 
 .PHONY: test
-install: test-web test-ais ## Test workspace
+test: test-web test-ais ## Test workspace
 
 .PHONY: test-web
-web-test: ## Run web application tests
+test-web: ## Run web application tests
 	$(PNPM) --dir $(WEB_DIR) vpr test
 
 .PHONY: test-ais
