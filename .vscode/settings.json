@@ -1,20 +1,16 @@
 {
-  // JS/TS Settings
   "files.associations": {
     "*.css": "tailwindcss"
   },
   "npm.scriptRunner": "vp",
 
-  // OXC Settings
   "oxc.disableNestedConfig": true,
   "oxc.fmt.disableNestedConfig": true,
 
-  // --- Python Environment Settings ---
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
   "python.terminal.useEnvFile": true,
   "python.terminal.activateEnvironment": true,
 
-  // --- Editor Settings (per language) ---
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "[javascript]": {
@@ -43,16 +39,13 @@
     }
   },
 
-  // --- Ruff Settings ---
   "ruff.path": ["${workspaceFolder}/.venv/bin/ruff"],
   "ruff.nativeServer": true,
 
-  // --- Python Testing Settings (Pytest integration) ---
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": ["services"],
 
-  // --- File Nesting & UI Cleanliness ---
   "files.exclude": {
     "**/__pycache__": true,
     "**/.pytest_cache": true,

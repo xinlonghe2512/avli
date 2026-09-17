@@ -1,5 +1,5 @@
 # ---------------------- Project Config ---------------------- #
-PROJECT_NAME := Avli
+PROJECT_NAME := avli
 
 ENV_FILE := .env
 
@@ -128,9 +128,8 @@ eval-ais: ## Run asset intelligence service DeepEval evaluations
 
 # ---------------------- Full Check ------------------- #
 
-.PHONY: full-check
-full-check: ## Run all CI-equivalent checks
-	lint format-check typecheck test
+.PHONY: full-check ## Run all CI-equivalent checks
+full-check: lint-check format-check typecheck test
 
 # ---------------------- Git Hooks -------------------- #
 
@@ -169,15 +168,15 @@ clean: ## Remove caches and build artifacts
 
 .PHONY: build-web
 build-web: ## Build the Asset Intelligence Service Docker image
-	docker build -t $(PROJECT_NAME)-web $(WEB_DIR)
+	docker build --no-cache -t $(PROJECT_NAME)-web -f $(WEB_DIR)/Dockerfile .
 
 .PHONY: build-celery
 build-celery: ## Build the Celery Docker image
-	docker build -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
+	docker build --no-cache -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
 
 .PHONY: build-ais
 build-ais: ## Build the Asset Intelligence Service Docker image
-	docker build -t $(PROJECT_NAME)-asset-intel-service $(AIS_DIR)
+	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service $(AIS_DIR)
 
 .PHONY: build-all
 build-all: build-web build-ais build-celery ## Build all Docker images

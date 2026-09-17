@@ -1,4 +1,4 @@
-FROM docker.io/node:24.21.0-alpine AS builder
+FROM docker.io/node:24.21.0-trixie-slim AS builder
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -19,7 +19,7 @@ WORKDIR /app/apps/web
 RUN pnpm build
 
 
-FROM docker.io/node:24.21.0-alpine
+FROM docker.io/node:24.21.0-trixie-slim
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0

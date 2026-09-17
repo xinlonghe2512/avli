@@ -13,7 +13,8 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
-    "fmt:fix": "oxfmt --fix"
+    "fmt:fix": "oxfmt --fix",
+    "test": "vp test"
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^2.25.2",
