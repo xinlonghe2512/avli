@@ -3,7 +3,7 @@ FROM docker.io/node:24.21.0-trixie-slim AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable && corepack prepare pnpm@12.4.2 --activate
+RUN corepack enable && corepack prepare pnpm@12.14.0 --activate
 
 WORKDIR /app
 

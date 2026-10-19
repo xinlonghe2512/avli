@@ -254,3 +254,4 @@ __marimo__/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.vitest/
