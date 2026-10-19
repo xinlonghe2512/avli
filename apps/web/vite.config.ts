@@ -33,23 +33,24 @@ export default defineConfig({
         // Remove when plugins and config hooks can run once for shared projects.
         // https://viteplus.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
         // https://vitest.dev/guide/migration/#inline-projects-share-the-vite-server-by-default
-        sharedViteServer: false,
-        expect: { requireAssertions: true },
+        // sharedViteServer: false,
+        expect: {
+            requireAssertions: true,
+        },
         projects: [
             {
                 extends: "./vite.config.ts",
                 test: {
                     name: "client",
+                    include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+                    exclude: ["src/lib/server/**"],
                     browser: {
                         enabled: true,
                         provider: playwright(),
                         instances: [{ browser: "chromium", headless: true }],
                     },
-                    include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
-                    exclude: ["src/lib/server/**"],
                 },
             },
-
             {
                 extends: "./vite.config.ts",
                 test: {
