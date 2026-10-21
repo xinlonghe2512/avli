@@ -50,9 +50,10 @@ FROM docker.io/python:3.13-slim-trixie AS runtime
 WORKDIR /src
 
 # Runtime environment.
-ENV PATH="/src/.venv/bin:$PATH"
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PATH="/src/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 
 # Copy the already-built virtual environment.
 COPY --from=builder /src/.venv /src/.venv
@@ -63,4 +64,4 @@ COPY --from=builder /src/src /src/src
 # Expose app port
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]

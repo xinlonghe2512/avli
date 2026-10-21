@@ -165,24 +165,16 @@ clean: ## Remove caches and build artifacts
 build-web: ## Build the Asset Intelligence Service Docker image
 	docker build --no-cache -t $(PROJECT_NAME)-web -f $(WEB_DIR)/Dockerfile .
 
-.PHONY: build-celery
-build-celery: ## Build the Celery Docker image
-	docker build --no-cache -t $(PROJECT_NAME)-celery -f docker/celery/Dockerfile .
+.PHONY: build-ais-api
+build-ais-api: ## Build the Asset Intelligence Service API Docker image
+	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service-api -f $(AIS_DIR)/api.Dockerfile .
 
-.PHONY: build-ais
-build-ais: ## Build the Asset Intelligence Service Docker image
-	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service -f $(AIS_DIR)/Dockerfile .
+.PHONY: build-ais-worker
+build-ais-worker: ## Build the Asset Intelligence Service Worker Docker image
+	docker build --no-cache -t $(PROJECT_NAME)-asset-intel-service-worker -f $(AIS_DIR)/worker.Dockerfile .
 
 .PHONY: build-all
-build-all: build-web build-ais build-celery ## Build all Docker images
-
-# ---------------------- Full Stack Docker Compose ---------------------- #
-
-.PHONY: up
-up: apps-up services-up obs-up obs-ai-up ## Start all Docker Compose stacks
-
-.PHONY: down
-down: apps-down services-down obs-down obs-ai-down ## Stop all Docker Compose stacks
+build-all: build-web build-ais-api build-ais-worker ## Build all Docker images
 
 # ---------------------- Application Stack Docker Compose ---------------------- #
 
@@ -251,6 +243,14 @@ obs_ai-logs: ## Follow ai observability stack logs
 
 .PHONY: obs_ai-restart
 obs_ai-restart: obs_ai-down obs_ai-up ## Restart the ai observability stack
+
+# ---------------------- Full Stack Docker Compose ---------------------- #
+
+.PHONY: up
+up: apps-up services-up obs-up obs-ai-up ## Start all Docker Compose stacks
+
+.PHONY: down
+down: apps-down services-down obs-down obs-ai-down ## Stop all Docker Compose stacks
 
 # ---------------------- Help ---------------------- #
 .PHONY: help

@@ -4,7 +4,7 @@ from celery import Celery
 
 from src.core.config import settings
 
-message_broker_url = f"redis://:{settings.MESSAGE_BROKER_PASSWORD}@{settings.MESSAGE_BROKER_HOST}:{settings.MESSAGE_BROKER_PORT}/0"
+message_broker_url = f"redis://:{settings.MESSAGE_BROKER_PASSWORD}@{settings.MESSAGE_BROKER_HOST}:{settings.MESSAGE_BROKER_PORT}/{settings.MESSAGE_BROKER_DB}"
 
 worker = Celery(
     "avli",

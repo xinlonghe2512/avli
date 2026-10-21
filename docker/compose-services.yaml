@@ -31,7 +31,7 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -46,7 +46,7 @@ services:
     depends_on:
       - valkey
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -72,7 +72,7 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -91,7 +91,7 @@ services:
       timeout: 10s
       start_period: 5s
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -113,7 +113,7 @@ services:
       timeout: 10s
       start_period: 5s
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
