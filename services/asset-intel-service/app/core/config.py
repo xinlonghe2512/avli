@@ -58,7 +58,7 @@ def load_env_file() -> str | None:
     """Load environment-specific .env file."""
     env = get_environment()
     # logger.info(f"Loading environment: {env}")
-    base_dir = Path(__file__).resolve().parents[4]
+    base_dir = Path(__file__).resolve().parents[2]
 
     # Define env files in priority order
     env_files = [

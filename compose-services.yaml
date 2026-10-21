@@ -11,9 +11,6 @@ services:
       - AIS_ENV=${AIS_ENV:-development}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set to a strong random value}
       - DATABASE_HOST=${DATABASE_HOST?Variable not set}
-    volumes:
-      - ./src:/src
-      - ./logs:/logs
     ports:
       - ${AIS_PORT?Variable not set}:8000
     depends_on:
@@ -41,8 +38,6 @@ services:
       context: .
       dockerfile: ./services/asset-intel-service/worker.Dockerfile
     restart: unless-stopped
-    volumes:
-      - .:/workspace:cached
     depends_on:
       - valkey
     env_file:

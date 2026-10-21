@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --package avli-asset-intel-service
 
 # Now copy the actual application source.
-COPY services/asset-intel-service/src ./src
+COPY services/asset-intel-service/app ./app
 
 # Install the application itself.
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -59,9 +59,9 @@ ENV PATH="/src/.venv/bin:$PATH" \
 COPY --from=builder /src/.venv /src/.venv
 
 # Copy application source.
-COPY --from=builder /src/src /src/src
+COPY --from=builder /src/app /src/app
 
 # Expose app port
 EXPOSE 8000
 
-CMD ["/src/.venv/bin/uvicorn", "app.main:service", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:service", "--host", "0.0.0.0", "--port", "8000"]

@@ -47,7 +47,7 @@ source .venv/bin/activate
 
 Make sure your editor is using the correct Python virtual environment, with the interpreter at `asset-intel-service/.venv/bin/python`.
 
-Modify or add SQLModel models for data and SQL tables in `./asset-intel-service/src/models.py`, API endpoints in `./asset-intel-service/src/api/`, CRUD (Create, Read, Update, Delete) utils in `./asset-intel-service/src/crud.py`.
+Modify or add SQLModel models for data and SQL tables in `./asset-intel-service/app/models.py`, API endpoints in `./asset-intel-service/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./asset-intel-service/app/crud.py`.
 
 ## VS Code
 
@@ -153,7 +153,7 @@ Make sure you create a "revision" of your models and that you "upgrade" your dat
 docker compose exec agent bash
 ```
 
-- Alembic is already configured to import your SQLModel models from `./asset-intel-service/src/models.py`.
+- Alembic is already configured to import your SQLModel models from `./asset-intel-service/app/models.py`.
 
 - After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
 
@@ -169,7 +169,7 @@ alembic revision --autogenerate -m "Add column last_name to User model"
 alembic upgrade head
 ```
 
-If you don't want to use migrations at all, uncomment the lines in the file at `./asset-intel-service/src/core/db.py` that end in:
+If you don't want to use migrations at all, uncomment the lines in the file at `./asset-intel-service/app/core/db.py` that end in:
 
 ```python
 SQLModel.metadata.create_all(engine)
@@ -181,11 +181,11 @@ and comment the line in the file `scripts/prestart.sh` that contains:
 alembic upgrade head
 ```
 
-If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./asset-intel-service/src/alembic/versions/`. And then create a first migration as described above.
+If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./asset-intel-service/app/alembic/versions/`. And then create a first migration as described above.
 
 ## Email Templates
 
-The email templates are in `./asset-intel-service/src/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
+The email templates are in `./asset-intel-service/app/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
 
 Before continuing, ensure you have the [MJML extension](https://github.com/mjmlio/vscode-mjml) installed in your VS Code.
 
