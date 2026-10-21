@@ -74,11 +74,6 @@ sync: ## Sync the uv workspace from the lockfile
 	$(UV) sync --all-packages --frozen
 
 # ---------------------- Workspace Linting & Formatting ---------------------- #
-
-.PHONY: check
-check: ## Check all workspace code
-	$(PNPM) --dir $(WEB_DIR) vpr check
-
 .PHONY: lint
 lint: ## Lint all workspace code
 	$(PNPM) --dir $(WEB_DIR) vpr lint:fix

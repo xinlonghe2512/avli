@@ -1,5 +1,5 @@
 # Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 
 # Set working directory
 WORKDIR /src
@@ -28,4 +28,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
 # Run Celery worker
-CMD ["uv", "run", "celery", "-A", "src.celery_app", "worker", "--loglevel=info"]
+CMD ["uv", "run", "celery", "-A", "src.worker", "worker", "--loglevel=info"]

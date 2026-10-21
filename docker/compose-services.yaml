@@ -1,15 +1,15 @@
 services:
-  asset-intel-service:
-    container_name: asset-intel-service
+  asset-intel-service-api:
+    container_name: asset-intel-service-api
     build:
       context: .
-      dockerfile: ../services/asset-intel-service/Dockerfile
+      dockerfile: ../services/asset-intel-service/api.Dockerfile
       args:
         AIS_ENV: ${AIS_ENV:-development}
     restart: unless-stopped
     volumes:
-      - ./app:/app/app
-      - ./logs:/app/logs
+      - ./src:/src
+      - ./logs:/logs
     ports:
       - ${AIS_PORT?Variable not set}:8000
     environment:
@@ -20,7 +20,13 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8000/api/v1/utils/health-check/",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,11 +35,11 @@ services:
     networks:
       - avli-services-network
 
-  celery:
-    container_name: celery
+  asset-intel-service-worker:
+    container_name: asset-intel-service-worker
     build:
       context: .
-      dockerfile: ../celery.Dockerfile
+      dockerfile: ../services/asset-intel-service/worker.Dockerfile
     restart: unless-stopped
     volumes:
       - .:/workspace:cached
@@ -72,7 +78,7 @@ services:
 
   valkey:
     container_name: valkey
-    image: docker.io/valkey/valkey:8.1.6-alpine
+    image: docker.io/valkey/valkey:9.1.2-alpine
     restart: always
     ports:
       - ${CACHE_PORT?Variable not set}:6379
@@ -90,7 +96,7 @@ services:
       - avli-services-network
 
   qdrant:
-    image: docker.io/qdrant/qdrant:v1.19.1-unprivileged
+    image: docker.io/qdrant/qdrant:v1.19.2-unprivileged
     container_name: qdrant
     restart: unless-stopped
     volumes:

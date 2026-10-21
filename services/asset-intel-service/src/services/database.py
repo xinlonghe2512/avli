@@ -1,6 +1,7 @@
 """This file contains the database service for the application."""
 
 from fastapi import HTTPException
+from sqlalchemy import literal
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.pool import QueuePool
 from sqlmodel import (
@@ -250,7 +251,7 @@ class DatabaseService:
         try:
             with Session(self.engine) as session:
                 # Execute a simple query to check connection
-                session.exec(select(1)).first()
+                session.exec(select(literal(1))).first()
                 return True
         except Exception as e:
             logger.error("database_health_check_failed", error=str(e))

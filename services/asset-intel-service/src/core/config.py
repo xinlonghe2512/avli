@@ -261,6 +261,12 @@ class Settings:
         self.CACHE_MAX_CONNECTIONS = int(os.getenv("CACHE_MAX_CONNECTIONS", 20))
         self.CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", 60))
 
+        # Message Broker Configuration
+        self.MESSAGE_BROKER_HOST = os.getenv("MESSAGE_BROKER_HOST", "")
+        self.MESSAGE_BROKER_PORT = int(os.getenv("MESSAGE_BROKER_PORT", 6379))
+        self.MESSAGE_BROKER_DB = int(os.getenv("MESSAGE_BROKER_DB", 0))
+        self.MESSAGE_BROKER_PASSWORD = os.getenv("MESSAGE_BROKER_PASSWORD", "")
+
         # Rate Limiting Configuration
         self.RATE_LIMIT_DEFAULT = parse_list_from_env(
             "RATE_LIMIT_DEFAULT", ["200 per day", "50 per hour"]

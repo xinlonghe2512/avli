@@ -5,13 +5,9 @@ FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 WORKDIR /src
 
 # Install system dependencies and uv
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    curl \
-    gcc \
-    libc-dev \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl gcc libc-dev python3-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set .venv in PATH for all commands.
 ENV PATH="/src/.venv/bin:$PATH"
@@ -45,6 +41,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --no-dev \
     --package avli-asset-intel-service
 
+# Expose app port
+EXPOSE 8000
+
 
 FROM docker.io/python:3.13-slim-trixie AS runtime
 
@@ -64,4 +63,4 @@ COPY --from=builder /src/src /src/src
 # Expose app port
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]
