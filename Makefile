@@ -180,15 +180,15 @@ build-all: build-web build-ais-api build-ais-worker ## Build all Docker images
 
 .PHONY: apps-up
 apps-up: ## Start the application stack
-	docker compose -f docker/compose-apps.yaml up -d --build
+	docker compose -f compose-apps.yaml up -d --build
 
 .PHONY: apps-down
 apps-down: ## Stop the application stack
-	docker compose -f docker/compose-apps.yaml down
+	docker compose -f compose-apps.yaml down
 
 .PHONY: apps-logs
 apps-logs: ## Follow the application stack logs
-	docker compose -f docker/compose-apps.yaml logs -f
+	docker compose -f compose-apps.yaml logs -f
 
 .PHONY: apps-restart
 apps-restart: apps-down apps-up ## Restart the application stack
@@ -197,15 +197,15 @@ apps-restart: apps-down apps-up ## Restart the application stack
 
 .PHONY: services-up
 services-up: ## Start the service stack
-	docker compose -f docker/compose-services.yaml up -d --build
+	docker compose -f compose-services.yaml up -d --build
 
 .PHONY: services-down
 services-down: ## Stop the service stack
-	docker compose -f docker/compose-services.yaml down
+	docker compose -f compose-services.yaml down
 
 .PHONY: services-logs
 services-logs: ## Follow the service stack logs
-	docker compose -f docker/compose-services.yaml logs -f
+	docker compose -f compose-services.yaml logs -f
 
 .PHONY: services-restart
 services-restart: services-down services-up ## Restart the service stack
@@ -214,15 +214,15 @@ services-restart: services-down services-up ## Restart the service stack
 
 .PHONY: obs-up
 obs-up: ## Start the observability stack
-	docker compose -f docker/compose-obs.yaml up -d
+	docker compose -f compose-obs.yaml up -d
 
 .PHONY: obs-down
 obs-down: ## Stop the observability stack
-	docker compose -f docker/compose-obs.yaml down
+	docker compose -f compose-obs.yaml down
 
 .PHONY: obs-logs
 obs-logs: ## Follow observability stack logs
-	docker compose -f docker/compose-obs.yaml logs -f
+	docker compose -f compose-obs.yaml logs -f
 
 .PHONY: obs-restart
 obs-restart: obs-down obs-up ## Restart the observability stack
@@ -231,15 +231,15 @@ obs-restart: obs-down obs-up ## Restart the observability stack
 
 .PHONY: obs_ai-up
 obs_ai-up: ## Start the ai observability stack
-	docker compose -f docker/compose-obs_ai.yaml up -d
+	docker compose -f compose-obs_ai.yaml up -d
 
 .PHONY: obs_ai-down
 obs_ai-down: ## Stop the ai observability stack
-	docker compose -f docker/compose-obs_ai.yaml down
+	docker compose -f compose-obs_ai.yaml down
 
 .PHONY: obs-logs
 obs_ai-logs: ## Follow ai observability stack logs
-	docker compose -f docker/compose-obs_ai.yaml logs -f
+	docker compose -f compose-obs_ai.yaml logs -f
 
 .PHONY: obs_ai-restart
 obs_ai-restart: obs_ai-down obs_ai-up ## Restart the ai observability stack

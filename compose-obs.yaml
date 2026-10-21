@@ -6,46 +6,48 @@ services:
     restart: unless-stopped
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./services/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./services/grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
     ports:
       - ${GRAFANA_PORT?Variable not set}:3000
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_SECURITY_ADMIN_PASSWORD}
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs-network
 
   # Metric Aggregation System
   prometheus:
     container_name: prometheus
     image: docker.io/prom/prometheus:v3.13.3
     restart: unless-stopped
+    volumes:
+      - ./services/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
     ports:
       - ${PROMETHEUS_PORT?Variable not set}:9091
-    volumes:
-      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs-network
 
   # Container Metric Collector
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
     restart: unless-stopped
-    ports:
-      - ${CADVISOR_PORT?Variable not set}:8080
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - avli-obs-network
+    ports:
+      - ${CADVISOR_PORT?Variable not set}:8080
     env_file:
       - .env
+    networks:
+      - avli-obs-network
 
   # Log Aggregation System
   loki:
@@ -55,31 +57,31 @@ services:
     ports:
       - ${LOKI_PORT?Variable not set}:3100
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs-network
 
   # Log Aggregation Collector
   alloy:
     container_name: alloy
     image: docker.io/grafana/alloy:v1.19.2
     restart: unless-stopped
-    ports:
-      - ${ALLOY_PORT?Variable not set}:12345
     volumes:
-      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - ./services/alloy/config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - alloy-data:/var/lib/alloy/data
+    ports:
+      - ${ALLOY_PORT?Variable not set}:12345
     command:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
-    networks:
-      - avli-obs-network
     env_file:
       - .env
+    networks:
+      - avli-obs-network
     depends_on:
       - loki
 
