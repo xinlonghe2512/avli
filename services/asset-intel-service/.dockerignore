@@ -27,7 +27,7 @@ coverage
 htmlcov
 **/htmlcov
 
-src.egg-info
+app.egg-info
 
 .env
 .env.*

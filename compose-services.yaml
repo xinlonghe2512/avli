@@ -59,7 +59,7 @@ services:
       - POSTGRES_USER=${DATABASE_DB_USER?Variable not set}
       - POSTGRES_PASSWORD=${DATABASE_DB_PASSWORD?Variable not set}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
     ports:
       - ${DATABASE_PORT?Variable not set}:5432
     healthcheck:

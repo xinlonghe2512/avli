@@ -64,4 +64,4 @@ COPY --from=builder /src/src /src/src
 # Expose app port
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:service", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/src/.venv/bin/uvicorn", "app.main:service", "--host", "0.0.0.0", "--port", "8000"]

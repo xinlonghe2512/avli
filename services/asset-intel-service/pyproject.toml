@@ -39,6 +39,7 @@ dependencies = [
   "sqlmodel>=0.0.42",
   "structlog>=26.1.0",
   "tenacity<10.0.0,>=8.2.3",
+  "uvicorn[standard]>=0.54.0",
 ]
 
 [dependency-groups]
@@ -69,10 +70,10 @@ sort = "-Cover"
 show_contexts = true
 
 [tool.fastapi]
-entrypoint = "src.main:service"
+entrypoint = "app.main:service"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["app", "src"]
 
 [tool.ruff]
 line-length = 88

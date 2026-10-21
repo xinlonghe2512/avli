@@ -43,7 +43,7 @@ web-build: ## Build the SvelteKit web application
 
 .PHONY: ais
 ais: ## Run the Asset Intelligence Service in development mode
-	$(UV) run --directory $(AIS_DIR) uvicorn src.main:service --reload --host 0.0.0.0 --port 8000
+	$(UV) run --directory $(AIS_DIR) uvicorn app.main:service --reload --host 0.0.0.0 --port 8000
 
 # ---------------------- Workspace Dependencies ---------------------- #
 
