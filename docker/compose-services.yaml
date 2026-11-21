@@ -1,9 +1,10 @@
 services:
   asset-intel-service-api:
     container_name: asset-intel-service-api
+    image: avli/asset-intel-service-api:latest
     build:
-      context: .
-      dockerfile: ./services/asset-intel-service/api.Dockerfile
+      context: ..
+      dockerfile: services/asset-intel-service/api.Dockerfile
       args:
         AIS_ENV: ${AIS_ENV:-development}
     restart: unless-stopped
@@ -28,20 +29,21 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
   asset-intel-service-worker:
     container_name: asset-intel-service-worker
+    image: avli/asset-intel-service-worker:latest
     build:
-      context: .
-      dockerfile: ./services/asset-intel-service/worker.Dockerfile
+      context: ..
+      dockerfile: services/asset-intel-service/worker.Dockerfile
     restart: unless-stopped
     depends_on:
       - valkey
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -67,7 +69,7 @@ services:
       timeout: 5s
       retries: 5
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -86,7 +88,7 @@ services:
       timeout: 10s
       start_period: 5s
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
@@ -108,7 +110,7 @@ services:
       timeout: 10s
       start_period: 5s
     env_file:
-      - .env
+      - ../.env
     networks:
       - avli-services-network
 
