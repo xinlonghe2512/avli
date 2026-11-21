@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "@vitest/browser-playwright": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
     "playwright": "*",
     "vite": "catalog:",
     "vite-plus": "catalog:",
@@ -23,12 +25,12 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "12.14.0",
+      "version": "12.21.0",
       "onFail": "download"
     }
   },
   "engines": {
     "node": ">=24 <25"
   },
-  "packageManager": "pnpm@12.14.0"
+  "packageManager": "pnpm@12.21.0"
 }
